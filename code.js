@@ -62,32 +62,47 @@ function refresh() {
 		  ],
 	  });
 }
-$.get('/communes-new.json', function (communes) {
-var communesNew = [];
+async function getData() {
+	const url = "communes-new.json";
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(`Response status: ${response.status}`);
+		}
 
-while (communes.length) {
-   var randomIndex = Math.floor(Math.random() * communes.length);
-   element = communes.pop(randomIndex);
-   communesNew.push(element);
+		const json = await response.json();
+		return json;
+	} catch (error) {
+		console.error(error.message);
+	}
 }
- communes = communesNew;
+async function process() {
+	communes = await getData();
+	var communesNew = [];
+
+	while (communes.length) {
+		var randomIndex = Math.floor(Math.random() * communes.length);
+		element = communes.pop(randomIndex);
+		communesNew.push(element);
+	}
+	communes = communesNew;
 
 
-  var id_map = {};
-  nodes = communes.map(function (node, idx) {
-	  id_map[node.id] = idx;
-          return {
-		  id: idx,
-		  name: node.name,
-		  entity: node.id,
-		  value: [ node.coord.longitude, node.coord.latitude],
-		  /*
+	var id_map = {};
+	nodes = communes.map(function (node, idx) {
+		id_map[node.id] = idx;
+		return {
+			id: idx,
+			name: node.name,
+			entity: node.id,
+			value: [ node.coord.longitude, node.coord.latitude],
+			/*
 		  x: node.coord.longitude,
 		  y: node.coord.latitude,
 		  */
-	  }
-        });
-  links = communes.flatMap(function (node) {
+		}
+	});
+	links = communes.flatMap(function (node) {
 		return node.conns.filter(function(dest) {
 			return node.id in id_map && dest in id_map;
 		}).map(function(dest) {
@@ -97,7 +112,7 @@ while (communes.length) {
 			}
 		})
 	});
-   var start_nodes, start_links = [[], []];
+	var start_nodes, start_links = [[], []];
 	/*
    var start_nodes = nodes.slice(0, 500);
    var start_ids = start_nodes.reduce(function (dict, node){dict[node.id] = true; return dict}, {});
@@ -110,98 +125,97 @@ while (communes.length) {
   console.debug(start_ids);
   console.debug(start_links);
   */
-  echarts.registerMap("France", France);
-  option = {
-     geo: [
-	     {
-		     map: 'France', roam: true,
-		     emphasis: {
-			     disabled: true
-		     },
-		     scaleLimit: {
-			min: 1,
-			max: 120,
-		     }
-	     }
-     ],
-    toolbox: {
-      feature: {
-          dataZoom: {
-              title: {zoom: 'Zoom in', back: 'Zoom out'},
-          },
-      }
-    },
-    series: [
-      {
-        type: 'graph',
-        layout: 'none',
-	coordinateSystem: 'geo',
-        //animation: false,
-        label: {
-          position: 'bottom',
-          //formatter: '{b} ({@id})'
-        },
-	emphasis: {
-		label: {
-		  position: 'right',
-		  formatter: function(node) {
-			  return node.name + " - " + node.data.entity;
-		  }
+	echarts.registerMap("France", France);
+	option = {
+		geo: [
+			{
+				map: 'France', roam: true,
+				emphasis: {
+					disabled: true
+				},
+				scaleLimit: {
+					min: 1,
+					max: 120,
+				}
+			}
+		],
+		toolbox: {
+			feature: {
+				dataZoom: {
+					title: {zoom: 'Zoom in', back: 'Zoom out'},
+				},
+			}
 		},
+		series: [
+			{
+				type: 'graph',
+				layout: 'none',
+				coordinateSystem: 'geo',
+				//animation: false,
+				label: {
+					position: 'bottom',
+					//formatter: '{b} ({@id})'
+				},
+				emphasis: {
+					label: {
+						position: 'right',
+						formatter: function(node) {
+							return node.name + " - " + node.data.entity;
+						}
+					},
+				},
+				//silent: true,
+				//draggable: true,
+				roam: true,
+				//symbol: 'rect',
+				//symbolSize: 3,
+				/*
+	force: {
+	  edgeLength: 1,
+	  repulsion: 2,
+		//gravity: 0.2
 	},
-	//silent: true,
-        //draggable: true,
-	roam: true,
-	//symbol: 'rect',
-	//symbolSize: 3,
-	      /*
-        force: {
-          edgeLength: 1,
-          repulsion: 2,
-          //gravity: 0.2
-        },
 	*/
-        nodes: start_nodes,
-	edges: start_links,
-	      /*
+		nodes: start_nodes,
+		edges: start_links,
+		/*
 	      lineStyle: {
-            //color: 'rgba(255,255,255,0.2)'
-          },
+		      //color: 'rgba(255,255,255,0.2)'
+	  },
 	  */
-          itemStyle: {
-            opacity: 1
-          },
-      }
-    ]
-  };
-  myChart.setOption(option);
-myChart.dispatchAction({
-    type: 'takeGlobalCursor',
-    key: 'dataZoomSelect',
-    // Activate or inactivate.
-    dataZoomSelectActive: true
-});
-  myChart.on("georoam", function(ev) {
-	  console.debug(ev);
-	  refresh();
-  });
-  myChart.on("dblclick", function(ev) {
-	  let zoom_level = myChart.getOption().geo[0].zoom;
-	  console.log("current zoom level:", zoom_level);
-	  myChart.setOption({
-		  geo: [{
-			  zoom: zoom_level * 1.5,
-			  center: myChart.convertFromPixel('geo', [ev.event.offsetX, ev.event.offsetY]),
-		  }]
-	  });
-  });
-  myChart.on("finished", refresh);
-  myChart.hideLoading();
-});
+		      itemStyle: {
+			      opacity: 1
+		      },
+			}
+		]
+	};
+	myChart.setOption(option);
+	myChart.dispatchAction({
+		type: 'takeGlobalCursor',
+		key: 'dataZoomSelect',
+		// Activate or inactivate.
+		dataZoomSelectActive: true
+	});
+	myChart.on("georoam", function(ev) {
+		//console.debug(ev);
+		refresh();
+	});
+	myChart.on("dblclick", function(ev) {
+		let zoom_level = myChart.getOption().geo[0].zoom;
+		console.log("current zoom level:", zoom_level);
+		myChart.setOption({
+			geo: [{
+				zoom: zoom_level * 1.5,
+				center: myChart.convertFromPixel('geo', [ev.event.offsetX, ev.event.offsetY]),
+			}]
+		});
+	});
+	myChart.on("finished", refresh);
+	myChart.hideLoading();
+	if (option && typeof option === 'object') {
+	  myChart.setOption(option);
+	}
 
-if (option && typeof option === 'object') {
-  myChart.setOption(option);
+	window.addEventListener('resize', myChart.resize);
 }
-
-window.addEventListener('resize', myChart.resize);
-
+process();
