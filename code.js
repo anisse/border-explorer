@@ -54,7 +54,7 @@ function refresh() {
 			{
 				nodes: new_nodes,
 				edges: new_links,
-				roam: true,
+				//roam: true,
 				label: {
 					show: new_nodes.length < 90,
 				},
@@ -166,7 +166,7 @@ async function process() {
 				},
 				//silent: true,
 				//draggable: true,
-				roam: true,
+				//roam: true,
 				//symbol: 'rect',
 				//symbolSize: 3,
 				/*
@@ -190,12 +190,14 @@ async function process() {
 		]
 	};
 	myChart.setOption(option);
+	/*
 	myChart.dispatchAction({
 		type: 'takeGlobalCursor',
 		key: 'dataZoomSelect',
 		// Activate or inactivate.
 		dataZoomSelectActive: true
 	});
+	*/
 	myChart.on("georoam", function(ev) {
 		//console.debug(ev);
 		refresh();
@@ -212,9 +214,11 @@ async function process() {
 	});
 	myChart.on("finished", refresh);
 	myChart.hideLoading();
+	/*
 	if (option && typeof option === 'object') {
 		myChart.setOption(option);
 	}
+	*/
 
 	window.addEventListener('resize', myChart.resize);
 }
