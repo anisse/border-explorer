@@ -198,9 +198,14 @@ async function process() {
 		dataZoomSelectActive: true
 	});
 	*/
+	var timeout;
 	myChart.on("georoam", function(ev) {
-		//console.debug(ev);
-		refresh();
+		//console.debug("georoam", ev);
+		if (timeout) {
+			clearTimeout(timeout);
+			timeout = null;
+		}
+		timeout = setTimeout(refresh, 50);
 	});
 	myChart.on("dblclick", function(ev) {
 		let zoom_level = myChart.getOption().geo[0].zoom;
