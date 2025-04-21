@@ -201,14 +201,16 @@ async function process() {
 	});
 	*/
 	var timeout;
-	myChart.on("georoam", function(ev) {
-		//console.debug("georoam", ev);
+	function delayedRefresh() {
 		if (timeout) {
 			clearTimeout(timeout);
 			timeout = null;
 		}
 		timeout = setTimeout(refresh, 50);
-	});
+	}
+	myChart.on("georoam", delayedRefresh);
+	myChart.on("datazoom", delayedRefresh);
+	myChart.on("graphroam", delayedRefresh);
 	myChart.on("dblclick", function(ev) {
 		let zoom_level = myChart.getOption().geo[0].zoom;
 		console.log("current zoom level:", zoom_level);
@@ -218,6 +220,7 @@ async function process() {
 				center: myChart.convertFromPixel('geo', [ev.event.offsetX, ev.event.offsetY]),
 			}]
 		});
+		delayedRefresh();
 	});
 	myChart.on("finished", function(ev) {
 		//console.debug("finished", ev);
