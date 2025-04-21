@@ -212,7 +212,11 @@ async function process() {
 			}]
 		});
 	});
-	myChart.on("finished", refresh);
+	myChart.on("finished", function(ev) {
+		//console.debug("finished", ev);
+		refresh();
+		myChart.off("finished"); // only for initial loading
+	});
 	myChart.hideLoading();
 	/*
 	if (option && typeof option === 'object') {
