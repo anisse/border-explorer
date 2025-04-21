@@ -168,7 +168,7 @@ async function process() {
 				},
 				//silent: true,
 				//draggable: true,
-				//roam: true,
+				roam: false,
 				//symbol: 'rect',
 				//symbolSize: 3,
 				/*
