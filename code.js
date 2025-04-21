@@ -139,6 +139,7 @@ async function process() {
 				}
 			}
 		],
+		/*
 		toolbox: {
 			feature: {
 				dataZoom: {
@@ -146,6 +147,7 @@ async function process() {
 				},
 			}
 		},
+		*/
 		series: [
 			{
 				type: 'graph',
