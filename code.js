@@ -89,7 +89,11 @@ async function process() {
 
 
 	var id_map = {};
-	nodes = communes.map(function (node, idx) {
+	nodes = communes.filter(function(node) {
+		present = node.id in id_map;
+		id_map[node.id] = true;
+		return !present;
+	}).map(function (node, idx) {
 		id_map[node.id] = idx;
 		return {
 			id: idx,
