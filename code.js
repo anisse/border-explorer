@@ -29,7 +29,7 @@ function subnodes(nodes, edges) {
 			node.value[1] > min[1] &&
 			node.value[1] < max[1];
 		return inside;
-	}).slice(0, 300);
+	}).slice(0, 200);
 	var start_ids = start_nodes.reduce(function (dict, node, idx){dict[node.id] = idx; return dict}, {});
 	var start_links = links.filter(function(l) {
 		return l.source in start_ids && l.target in start_ids
