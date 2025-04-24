@@ -3,7 +3,7 @@ var France = {"type":"FeatureCollection","features":[{"type":"Feature","geometry
 
 const map = new maplibregl.Map({
 	container: 'map',
-	style: {version: 8,sources: {},layers: [], glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf" },
+	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
 	center: [1.922,48.4575],
 	zoom: 5
 });
