@@ -104,13 +104,13 @@ async function process() {
 		}
 	});
 	map.addLayer({
-            'id': 'places',
-            'type': 'circle',
-            'source': 'communes',
-            'paint': {
-		    'circle-color': '#5470c6'
-            }
-        });
+		'id': 'places',
+		'type': 'circle',
+		'source': 'communes',
+		'paint': {
+			'circle-color': '#5470c6'
+		}
+	});
 	map.addSource('communes_borders', {
 		type: 'geojson',
 		data: {
@@ -119,12 +119,49 @@ async function process() {
 		}
 	});
 	map.addLayer({
-            'id': 'links',
-            'type': 'line',
-            'source': 'communes_borders',
-            'paint': {
-		    'line-color': '#cdcdcd'
-            }
-        });
+		'id': 'links',
+		'type': 'line',
+		'source': 'communes_borders',
+		'paint': {
+			'line-color': '#cdcdcd'
+		}
+	});
+
+	// Create a popup, but don't add it to the map yet.
+	const popup = new maplibregl.Popup({
+		closeButton: false,
+		closeOnClick: false
+	});
+
+	let currentFeatureCoordinates = undefined;
+	map.on('mousemove', 'places', (e) => {
+		const featureCoordinates = e.features[0].geometry.coordinates.toString();
+		if (currentFeatureCoordinates !== featureCoordinates) {
+			currentFeatureCoordinates = featureCoordinates;
+
+			// Change the cursor style as a UI indicator.
+			map.getCanvas().style.cursor = 'pointer';
+
+			const coordinates = e.features[0].geometry.coordinates.slice();
+			const description = e.features[0].properties.description;
+
+			// Ensure that if the map is zoomed out such that multiple
+			// copies of the feature are visible, the popup appears
+			// over the copy being pointed to.
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+
+			// Populate the popup and set its coordinates
+			// based on the feature found.
+			popup.setLngLat(coordinates).setHTML(description).addTo(map);
+		}
+	});
+
+	map.on('mouseleave', 'places', () => {
+		currentFeatureCoordinates = undefined;
+		map.getCanvas().style.cursor = '';
+		popup.remove();
+	});
 }
 process();
