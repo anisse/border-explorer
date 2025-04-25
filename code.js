@@ -15,6 +15,8 @@ map.dragRotate.disable();
 map.keyboard.disable();
 // disable map rotation using touch rotation gesture
 map.touchZoomRotate.disableRotation();
+// disable map pitch using touch gesture
+map.touchPitch.disable();
 
 map.on('load', () => {
         map.addSource('France', {
