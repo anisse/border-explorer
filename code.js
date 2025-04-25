@@ -8,6 +8,14 @@ const map = new maplibregl.Map({
 	zoom: 5
 });
 
+
+// disable map rotation using right click + drag
+map.dragRotate.disable();
+// disable map rotation using keyboard
+map.keyboard.disable();
+// disable map rotation using touch rotation gesture
+map.touchZoomRotate.disableRotation();
+
 map.on('load', () => {
         map.addSource('France', {
 		type: 'geojson',
