@@ -89,10 +89,22 @@ async function process() {
 			},
 		}
 	});
+	var link_map = {};
 	links = communes.flatMap(function (node) {
 		return node.conns.filter(function(dest) {
-			return node.id in coord_map && dest in coord_map;
+			if (!dest)
+				return false;
+			let n1 = dest.slice(1);
+			let n2 = node.id.slice(1);
+			let start = Math.min(n1, n2);
+			let end = Math.max(n1, n2);
+			return !(start + "-" + end in link_map) && node.id in coord_map && dest in coord_map;
 		}).map(function(dest) {
+			let n1 = dest.slice(1);
+			let n2 = node.id.slice(1);
+			let start = Math.min(n1, n2);
+			let end = Math.max(n1, n2);
+			link_map[start + "-" + end] = true;
 			return {
 				type: 'Feature',
 				properties: {},
