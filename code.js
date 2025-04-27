@@ -7,6 +7,7 @@ const map = new maplibregl.Map({
 	center: [1.922,48.4575],
 	zoom: 5
 });
+const filterInput = document.getElementById('filter-input');
 
 
 // disable map rotation using right click + drag
@@ -175,6 +176,11 @@ async function process() {
 		}
 	}
 	);
-
+	filterInput.addEventListener('keyup', (e) => {
+		const value = e.target.value.trim().toLowerCase();
+		const filter = ['in', value, ['downcase', ['get', 'description']]];
+		map.setFilter('places', filter);
+		map.setFilter('labels', filter);
+	});
 }
 process();
