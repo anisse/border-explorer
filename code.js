@@ -39,7 +39,9 @@ map.touchZoomRotate.disableRotation();
 // disable map pitch using touch gesture
 map.touchPitch.disable();
 
-map.on('load', () => {
+const load = map.once('load')
+
+function init() {
         map.addSource('France', {
 		type: 'geojson',
 		data: France
@@ -57,7 +59,7 @@ map.on('load', () => {
                 'line-width': 2
             }
         });
-});
+}
 
 
 var nodes;
@@ -77,8 +79,7 @@ async function getData() {
 		console.error(error.message);
 	}
 }
-async function process() {
-	communes = await getData();
+async function massageData(communes) {
 	var communesNew = [];
 
 	while (communes.length) {
@@ -139,6 +140,9 @@ async function process() {
 			}
 		})
 	});
+}
+async function process() {
+	communes = await getData();
 	map.addSource('communes_borders', {
 		type: 'geojson',
 		data: {
@@ -209,4 +213,9 @@ async function process() {
 	});
 	updateFilter(params.filter);
 }
-process();
+Promise.all(
+	[
+	load.then(init),
+	getData().then(massageData),
+	]).then(process);
+//process();
