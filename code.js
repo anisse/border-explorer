@@ -218,4 +218,3 @@ Promise.all(
 	load.then(init),
 	getData().then(massageData),
 	]).then(process);
-//process();
