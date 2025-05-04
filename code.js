@@ -16,7 +16,7 @@ if (window.location.hash) {
 const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
-	attributionControl: {customAttribution: "<a href='https://anisse.astier.eu/wikidata-communes-viewer.html'>Anisse Astier</a>", compact: true},
+	attributionControl: {customAttribution: "<a href='https://anisse.astier.eu/wikidata-communes-viewer.html' target='_blank'>Anisse Astier</a>", compact: true},
 	center: params.center || [1.922,48.4575],
 	zoom: params["zoom"] || 5
 });
