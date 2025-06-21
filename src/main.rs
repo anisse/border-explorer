@@ -1,24 +1,41 @@
+use memchr::memmem;
 use std::env;
-use std::io::Read;
+use std::io::{BufRead, BufReader};
 use std::process;
-fn main() {
-    let file = env::args().nth(1).expect("not enough arguments");
-    let mut cat = process::Command::new("lbzcat")
+
+fn lbzcat(file: &str) -> Result<process::Child, String> {
+    let cat = process::Command::new("lbzcat")
         .arg(file)
         .stdout(process::Stdio::piped())
         .spawn()
-        .expect("failed to launch lbzcat");
+        .map_err(|e| format!("failed to launch lbzcat: {e}"))?;
 
-    let mut buf: [u8; 16 * 1024] = [0; 16 * 1024];
-    if let Some(ref mut stdout) = cat.stdout {
-        while let Ok(n) = stdout.read(&mut buf) {
-            //print!("{n}...");
-            if n == 0 {
-                break;
-            }
-        }
-        println!();
+    Ok(cat)
+}
+
+fn grep<'a>(line: &'a str, needle: &str) -> Option<&'a str> {
+    if memmem::find(line.as_ref(), needle.as_ref()).is_some() {
+        return Some(line);
     }
+    None
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let file = env::args().nth(1).expect("not enough arguments");
+    let needle = env::args().nth(2).expect("not enough arguments");
+    let mut cat = lbzcat(&file)?;
+    if let Some(ref mut stdout) = cat.stdout {
+        BufReader::new(stdout)
+            .lines()
+            .map_while(Result::ok)
+            .for_each(|line| {
+                if let Some(l) = grep(&line, &needle) {
+                    print!("{l}");
+                }
+            });
+    }
+
     let res = cat.wait().expect("Could not wait");
     assert!(res.success());
+    Ok(())
 }
