@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .map_while(Result::ok)
             .for_each(|line| {
                 if let Some(l) = grep(&line, &needle) {
-                    print!("{l}");
+                    println!("{l}");
                 }
             });
     }
