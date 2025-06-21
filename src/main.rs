@@ -2,7 +2,7 @@ use std::env;
 use std::io::Read;
 use std::process;
 fn main() {
-    let file = env::args().nth(1).unwrap();
+    let file = env::args().nth(1).expect("not enough arguments");
     let mut cat = process::Command::new("lbzcat")
         .arg(file)
         .stdout(process::Stdio::piped())
