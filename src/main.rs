@@ -4,6 +4,7 @@ use std::env;
 use std::io::{BufRead, BufReader};
 use std::process;
 
+use chrono::DateTime;
 use memchr::memmem;
 use serde::Deserialize;
 
@@ -68,14 +69,14 @@ struct Element<'a> {
     id: &'a str,
     labels: HashMap<&'a str, Label<'a>>,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct Claim<'a> {
     #[serde(borrow)]
     mainsnak: Snak<'a>,
-    qualifiers: HashMap<&'a str, Vec<Snak<'a>>>,
+    qualifiers: Option<HashMap<&'a str, Vec<Snak<'a>>>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(tag = "datatype", content = "datavalue")]
 #[non_exhaustive]
 enum Snak<'a> {
@@ -84,8 +85,9 @@ enum Snak<'a> {
         #[serde(borrow)]
         value: Value<'a>,
     },
+    #[serde(rename = "string")]
     #[serde(alias = "url")]
-    string {
+    Str {
         value: Cow<'a, str>,
     },
     #[serde(rename = "globe-coordinate")]
@@ -97,15 +99,17 @@ enum Snak<'a> {
         value: Time<'a>,
     },
 
+    // TODO: to remove (unused)
     #[serde(rename = "external-id")]
     ExternalId(serde_json::Value),
     commonsMedia(serde_json::Value),
     quantity(serde_json::Value),
     monolingualtext(serde_json::Value),
+    // The rest
     #[serde(untagged)]
     Unknown(serde_json::Value),
 }
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Time<'a> {
     time: &'a str,
 }
@@ -129,17 +133,17 @@ struct Datavalue<'a> {
     value: serde_json::Value,
 }
 */
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Value<'a> {
     id: &'a str,
 }
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Coord {
     latitude: f64,
     longitude: f64,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Label<'a> {
     language: &'a str,
     value: Cow<'a, str>,
@@ -158,7 +162,7 @@ fn query<'a>(l: &'a str, claim: &str, nature_ids: &[&str]) -> Option<Element<'a>
             //print!(".");
             nature_ids.iter().any(|possible_nature| {
                 if let Snak::Item { value } = &nat.mainsnak {
-                    &value.id == possible_nature //&& claim_still_valid(&nat)
+                    &value.id == possible_nature && claim_still_valid(nat)
                 } else {
                     false
                 }
@@ -172,11 +176,39 @@ fn query<'a>(l: &'a str, claim: &str, nature_ids: &[&str]) -> Option<Element<'a>
 
 fn claim_still_valid(claim: &Claim) -> bool {
     // check qualifier P582 (expiry date) of this claim
-    if let Some(expiry) = claim.qualifiers.get("P582") {
-        // Is it expired ? fixed date
-        //chrono::
+    if let Some(ref qualifiers) = claim.qualifiers {
+        if let Some(expiries) = qualifiers.get("P582") {
+            // Is it expired ? fixed date
+            if claim_before(
+                expiries,
+                DateTime::parse_from_rfc3339("2025-01-01T00:00:00+00:00").expect("Cannot fail"),
+            ) {
+                return false;
+            }
+        }
     }
-    false
+    true
+}
+
+fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime<Tz>) -> bool {
+    p582_qualifiers.iter().all(|expiry| {
+        if let Snak::Time { value } = expiry {
+            //println!("{claim:?}: '{}'", value.time);
+
+            match DateTime::parse_from_str(value.time, "%+") {
+                //DateTime::parse_from_str(value.time, "%Y-%m-%dT%H:%M:%SZ").unwrap()
+                Ok(dt) => dt < cutoff,
+                Err(e) => {
+                    println!("Cannot parse date '{}': {e}", value.time);
+                    /* Unparseable date, assume it's probably too old (year-only), and therefore
+                     * the before the date we target*/
+                    true
+                }
+            }
+        } else {
+            false
+        }
+    })
 }
 
 struct Output {}
@@ -189,9 +221,17 @@ fn format<'a>(item: Element<'a>) -> String {
             .unwrap_or(&vec![])
             .iter()
             .map(|nat| if let Snak::Item { value } = &nat.mainsnak {
-                value.id
+                format!(
+                    "{}{}",
+                    value.id,
+                    if !claim_still_valid(nat) {
+                        "(obsolete)"
+                    } else {
+                        ""
+                    }
+                )
             } else {
-                "<Unknown-Nature>"
+                "<Unknown-Nature>".to_string()
             })
             .collect::<Vec<_>>()
             .join(", "),
