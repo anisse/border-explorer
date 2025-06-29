@@ -10,22 +10,38 @@ use serde::Deserialize;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = env::args().nth(1).ok_or(ArgError {})?;
-    let needle = env::args().nth(2).ok_or(ArgError {})?;
+    let claims: Vec<String> = env::args()
+        .nth(2)
+        .ok_or(ArgError {})?
+        .split(",")
+        .map(String::from)
+        .collect();
+    let natures: Vec<String> = env::args()
+        .nth(3)
+        .unwrap_or("".to_string())
+        .split(",")
+        .skip_while(|s| s.is_empty())
+        .map(String::from)
+        .collect();
     let mut cat = lbzcat(&file)?;
+    let mut nat_count: HashMap<String, u64> = HashMap::new();
     if let Some(ref mut stdout) = cat.stdout {
         BufReader::new(stdout)
             .lines()
             .map_while(Result::ok)
             .enumerate()
             .for_each(|(i, line)| {
-                if let Some(l) = grep(&line, &needle) {
+                if let Some(l) = grep(&line, &claims[0]) {
                     //println!("{i}");
-                    if let Some(el) = query(l, "P47", &[] /*&["Q484170"]*/) {
+                    if let Some(el) = query(l, &claims, &natures) {
+                        count(&mut nat_count, &el);
                         println!("{i}: {}", format(el));
                     }
                 }
             });
     }
+
+    nat_count.iter().for_each(|(k, v)| println!("{v:<8} {k}"));
 
     let res = cat.wait().map_err(|e| format!("Could not wait: {e}"))?;
     res.success().then_some(()).ok_or("failure")?;
@@ -35,7 +51,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 struct ArgError {}
 impl std::fmt::Display for ArgError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "not enough arguments")
+        write!(
+            f,
+            "not enough arguments. Usage:\nborder-explorer <wikidata bz2 json file> <comma separated mandatory claims (AND)> [comma separated possible natures (OR)]"
+        )
     }
 }
 impl std::fmt::Debug for ArgError {
@@ -85,26 +104,22 @@ enum Snak<'a> {
         #[serde(borrow)]
         value: Value<'a>,
     },
-    #[serde(rename = "string")]
-    #[serde(alias = "url")]
-    Str {
-        value: Cow<'a, str>,
-    },
     #[serde(rename = "globe-coordinate")]
-    GlobeCoordinate {
-        value: Coord,
-    },
+    GlobeCoordinate { value: Coord },
     #[serde(rename = "time")]
-    Time {
-        value: Time<'a>,
-    },
+    Time { value: Time<'a> },
 
     // TODO: to remove (unused)
+    #[serde(rename = "string")]
+    #[serde(alias = "url")]
+    Str { value: Cow<'a, str> },
+    /*
     #[serde(rename = "external-id")]
     ExternalId(serde_json::Value),
     commonsMedia(serde_json::Value),
     quantity(serde_json::Value),
     monolingualtext(serde_json::Value),
+    */
     // The rest
     #[serde(untagged)]
     Unknown(serde_json::Value),
@@ -148,11 +163,14 @@ struct Label<'a> {
     language: &'a str,
     value: Cow<'a, str>,
 }
-fn query<'a>(l: &'a str, claim: &str, nature_ids: &[&str]) -> Option<Element<'a>> {
+fn query<'a>(l: &'a str, claims: &[String], nature_ids: &[String]) -> Option<Element<'a>> {
     //println!("{l}");
     let el: Element = serde_json::from_str(&l[0..(l.len() - 1)]).expect("not json");
-    el.claims.contains_key(claim).then_some(())?;
-    el.claims.contains_key("P625").then_some(())?;
+    /* Check that all claims we expect are indeed present */
+    claims
+        .iter()
+        .all(|claim| el.claims.contains_key(claim.as_str()))
+        .then_some(())?;
     if nature_ids.is_empty() {
         return Some(el);
     }
@@ -162,7 +180,7 @@ fn query<'a>(l: &'a str, claim: &str, nature_ids: &[&str]) -> Option<Element<'a>
             //print!(".");
             nature_ids.iter().any(|possible_nature| {
                 if let Snak::Item { value } = &nat.mainsnak {
-                    &value.id == possible_nature && claim_still_valid(nat)
+                    value.id == possible_nature && claim_still_valid(nat)
                 } else {
                     false
                 }
@@ -211,7 +229,6 @@ fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime
     })
 }
 
-struct Output {}
 fn format<'a>(item: Element<'a>) -> String {
     format!(
         "{} ({}): {}",
@@ -236,11 +253,26 @@ fn format<'a>(item: Element<'a>) -> String {
             .collect::<Vec<_>>()
             .join(", "),
         item.labels
-            .get("fr")
+            .get("en")
             .unwrap_or(&Label {
                 language: "x",
                 value: Cow::from("<No-French-Label>")
             })
             .value
     )
+}
+
+fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
+    item.claims
+        .get("P31")
+        .unwrap_or(&vec![])
+        .iter()
+        .for_each(|nat| {
+            if let Snak::Item { value } = &nat.mainsnak {
+                if claim_still_valid(nat) {
+                    let nat = value.id.to_string();
+                    (*natures.entry(nat).or_insert(0)) += 1;
+                }
+            }
+        });
 }
