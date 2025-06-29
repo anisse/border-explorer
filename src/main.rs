@@ -110,10 +110,10 @@ enum Snak<'a> {
     Time { value: Time<'a> },
 
     // TODO: to remove (unused)
+    /*
     #[serde(rename = "string")]
     #[serde(alias = "url")]
     Str { value: Cow<'a, str> },
-    /*
     #[serde(rename = "external-id")]
     ExternalId(serde_json::Value),
     commonsMedia(serde_json::Value),
@@ -121,6 +121,7 @@ enum Snak<'a> {
     monolingualtext(serde_json::Value),
     */
     // The rest
+    #[allow(unused)]
     #[serde(untagged)]
     Unknown(serde_json::Value),
 }
@@ -160,7 +161,7 @@ struct Coord {
 
 #[derive(Debug, Deserialize)]
 struct Label<'a> {
-    language: &'a str,
+    //language: &'a str,
     value: Cow<'a, str>,
 }
 fn query<'a>(l: &'a str, claims: &[String], nature_ids: &[String]) -> Option<Element<'a>> {
@@ -255,7 +256,7 @@ fn format<'a>(item: Element<'a>) -> String {
         item.labels
             .get("en")
             .unwrap_or(&Label {
-                language: "x",
+                //language: "x",
                 value: Cow::from("<No-French-Label>")
             })
             .value
