@@ -24,24 +24,60 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(String::from)
         .collect();
     let mut cat = lbzcat(&file)?;
-    let mut nat_count: HashMap<String, u64> = HashMap::new();
+    let conn = rusqlite::Connection::open("out.db")?;
+    conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
+    conn.execute(
+        "CREATE TABLE items (
+            id TEXT primary key,
+            lat TEXT,
+            lon TEXT,
+            name_en TEXT,
+            name_fr TEXT
+        );",
+        (),
+    )?;
+    conn.execute(
+        "CREATE TABLE natures (
+            id TEXT,
+            nat TEXT,
+            FOREIGN KEY(id) REFERENCES items(id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+        ",
+        (),
+    )?;
+    conn.execute(
+        "CREATE TABLE edges (
+            a TEXT not null,
+            b TEXT not null,
+            UNIQUE(a, b)
+        );",
+        (),
+    )?;
+
+    conn.execute(
+        "CREATE INDEX edges_a ON edges(a);
+        ",
+        (),
+    )?;
+    conn.execute(
+        "CREATE INDEX edges_b ON edges(b);
+        ",
+        (),
+    )?;
     if let Some(ref mut stdout) = cat.stdout {
         BufReader::new(stdout)
             .lines()
             .map_while(Result::ok)
             .enumerate()
-            .for_each(|(i, line)| {
-                if let Some(l) = grep(&line, &claims[0]) {
-                    //println!("{i}");
-                    if let Some(el) = query(l, &claims, &natures) {
-                        count(&mut nat_count, &el);
-                        println!("{i}: {}", format(el));
-                    }
+            // cheap filter for faster processing
+            .filter(|(_, line)| claims.iter().all(|claim| grep(line, claim)))
+            .for_each(|(i, l)| {
+                if let Some(el) = query(&l, &claims, &natures) {
+                    println!("{i}: {}", format(&el));
+                    insert(&conn, &el);
                 }
             });
     }
-
-    nat_count.iter().for_each(|(k, v)| println!("{v:<8} {k}"));
 
     let res = cat.wait().map_err(|e| format!("Could not wait: {e}"))?;
     res.success().then_some(()).ok_or("failure")?;
@@ -74,11 +110,8 @@ fn lbzcat(file: &str) -> Result<process::Child, String> {
     Ok(cat)
 }
 
-fn grep<'a>(line: &'a str, needle: &str) -> Option<&'a str> {
-    if memmem::find(line.as_ref(), needle.as_ref()).is_some() {
-        return Some(line);
-    }
-    None
+fn grep<'a>(line: &'a str, needle: &str) -> bool {
+    memmem::find(line.as_ref(), needle.as_ref()).is_some()
 }
 
 #[derive(Deserialize)]
@@ -230,7 +263,7 @@ fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime
     })
 }
 
-fn format<'a>(item: Element<'a>) -> String {
+fn format<'a>(item: &Element<'a>) -> String {
     format!(
         "{} ({}): {}",
         item.id,
@@ -276,4 +309,97 @@ fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
                 }
             }
         });
+}
+
+fn insert<'a>(conn: &rusqlite::Connection, item: &Element<'a>) {
+    let label_en = label_or_empty(item, "en");
+    let label_fr = label_or_empty(item, "fr");
+    let natures = item
+        .claims
+        .get("P31")
+        .unwrap_or_else(|| {
+            panic!("No nature for {}: {} - {}", item.id, label_en, label_fr);
+        })
+        .iter()
+        .filter(|nat| claim_still_valid(nat))
+        .map(|nat| {
+            if let Snak::Item { value } = &nat.mainsnak {
+                value.id
+            } else {
+                panic!("No nature id")
+            }
+        });
+    // We should not reach this code without an existing position
+    let position = item
+        .claims
+        .get("P625")
+        .expect("Should have a position")
+        .iter()
+        .filter_map(|pos| {
+            if let Snak::GlobeCoordinate { ref value } = pos.mainsnak {
+                Some(value)
+            } else {
+                None
+            }
+        })
+        .next();
+    // Ignore item with no position
+    let position = match position {
+        Some(pos) => pos,
+        None => return,
+    };
+    let connections = item
+        .claims
+        .get("P47")
+        .expect("Should have connections")
+        .iter()
+        .filter_map(|pos| {
+            //dbg!(&pos.mainsnak);
+            if let Snak::Item { ref value } = pos.mainsnak {
+                Some(value.id)
+            } else {
+                None // Ignore elements explicitly without any item to share border with, like Q71356
+            }
+        });
+    conn.execute(
+        "INSERT INTO items (id, lat, lon, name_en, name_fr)
+            VALUES (?1, ?2, ?3, ?4, ?5);",
+        (
+            item.id,
+            position.latitude,
+            position.longitude,
+            label_en,
+            label_fr,
+        ),
+    )
+    .expect("Failed insert");
+    natures.for_each(|nat| {
+        conn.execute(
+            "INSERT INTO natures (id, nat)
+                VALUES (?1, ?2);",
+            (item.id, nat),
+        )
+        .expect("Failed nature insert");
+    });
+    connections.for_each(|edge| {
+        let mut items = [item.id, edge];
+        items.sort();
+        conn.execute(
+            "INSERT OR IGNORE INTO edges (a, b)
+                VALUES (?1, ?2);",
+            (items[0], items[1]),
+        )
+        .expect("Failed nature insert");
+    });
+}
+
+fn label_or_empty<'a>(item: &Element<'a>, lang: &str) -> String {
+    item.labels
+        .get(lang)
+        .unwrap_or(&Label {
+            //language: "x",
+            value: Cow::from(""),
+        })
+        .value
+        .to_string()
 }
