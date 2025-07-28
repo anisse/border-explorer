@@ -1,12 +1,15 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
 use std::env;
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::process;
 
 use chrono::DateTime;
 use memchr::memmem;
-use serde::Deserialize;
+use serde::ser::{self, SerializeSeq};
+use serde::{Deserialize, Serialize, Serializer};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = env::args().nth(1).ok_or(ArgError {})?;
@@ -23,9 +26,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .skip_while(|s| s.is_empty())
         .map(String::from)
         .collect();
-    let mut cat = lbzcat(&file)?;
-    let conn = rusqlite::Connection::open("out.db")?;
+    let mut conn = rusqlite::Connection::open("out.db")?;
     conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
+    create_db_tables(&mut conn)?;
+    let mut statements = Statements::new(&conn);
+    fill_db_from_dump(file, claims, natures, &mut statements)?;
+    generate_geojson(&mut statements)?;
+    Ok(())
+}
+fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn std::error::Error>> {
     conn.execute(
         "CREATE TABLE entities (
             id TEXT primary key,
@@ -64,7 +73,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     conn.execute("CREATE INDEX edges_a ON edges(a);", ())?;
     conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
-    let mut statements = Statements::new(&conn);
+    Ok(())
+}
+fn fill_db_from_dump<'a>(
+    file: String,
+    claims: Vec<String>,
+    natures: Vec<String>,
+    statements: &mut Statements,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut cat = lbzcat(&file)?;
     if let Some(ref mut stdout) = cat.stdout {
         BufReader::new(stdout)
             .lines()
@@ -75,18 +92,68 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // cheap filter for faster processing; grepping multiple claims is much faster than
             // json parsing, and does faster elimination of non-matching content
             .filter(|(_, line)| claims.iter().all(|claim| grep(line, claim)))
-            .for_each(|(i, l)| {
+            .for_each(|(_i, l)| {
                 let el = parse(&l);
                 if query(&el, &claims, &natures) {
-                    //println!("{i}: {}", format(&el));
-                    insert_base(&mut statements, &el);
-                    insert(&mut statements, &el);
+                    //println!("{_i}: {}", _format(&el));
+                    insert_base(statements, &el);
+                    insert(statements, &el);
                 }
             });
     }
 
     let res = cat.wait().map_err(|e| format!("Could not wait: {e}"))?;
     res.success().then_some(()).ok_or("failure")?;
+    Ok(())
+}
+
+fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn std::error::Error>> {
+    // Get top 200 categories, and fetch their name
+    //
+    // Block those generic (too broad) categories that can be in many separate places:
+    let banned_generic_categories = HashSet::from([
+        "Q79007",   // street
+        "Q3257686", // locality
+        "Q188509",  // suburb
+        "Q7543083", // avenue
+        "Q3957",    // town
+        "Q207934",  // avenue
+        "Q123705",  // neighborhood
+        "Q532",     // village
+        "Q34442",   // road
+        "Q54114",   // boulevard
+        "Q1549591", // big city
+        "Q486972",  // human settlement
+        "Q5004679", // path
+        "Q902814",  // border city
+        "Q2983893", // quarter
+        "Q515",     // city
+        "Q41176",   // building
+        "Q194203",  // arrondissement of France
+        "Q2198484", // municipal district // accross Canada, Ireland, and Russia
+        "Q3840711", // riverfront
+        "Q703941",  // private road
+        "Q82794",   // region
+    ]);
+    let top200 = &mut statements.top_200_categories_by_edges;
+    let select_category = &mut statements.select_entities_category;
+    let mut rows = top200.query([])?;
+    while let Some(row) = rows.next()? {
+        let id: String = row.get(0)?;
+        if !banned_generic_categories.contains(&id.as_str()) {
+            // Make sure we have the description of this category.
+            fetch_missing_entity_name(
+                &mut statements.select_entity,
+                &mut statements.insert_entity,
+                &id,
+            )?;
+            let f = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
+            //write!(f, "");
+            let entities = select_category.query((id,))?;
+            let geo = GeoJsonRoot::new(RefCell::new(entities));
+            serde_json::to_writer(f, &geo)?;
+        }
+    }
     Ok(())
 }
 
@@ -120,12 +187,15 @@ fn grep(line: &str, needle: &str) -> bool {
     memmem::find(line.as_ref(), needle.as_ref()).is_some()
 }
 
+type Labels<'a> = HashMap<&'a str, Label<'a>>;
+type LabelsQuery<'a> = HashMap<&'a str, Cow<'a, str>>;
+
 #[derive(Deserialize)]
 struct Element<'a> {
     #[serde(borrow)]
     claims: HashMap<&'a str, Vec<Claim<'a>>>,
     id: &'a str,
-    labels: HashMap<&'a str, Label<'a>>,
+    labels: Labels<'a>,
 }
 #[derive(Deserialize, Debug)]
 struct Claim<'a> {
@@ -276,7 +346,7 @@ fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime
     })
 }
 
-fn format<'a>(item: &Element<'a>) -> String {
+fn _format<'a>(item: &Element<'a>) -> String {
     format!(
         "{} ({}): {}",
         item.id,
@@ -330,6 +400,9 @@ struct Statements<'conn> {
     insert_position: rusqlite::Statement<'conn>,
     insert_nature: rusqlite::Statement<'conn>,
     insert_edge: rusqlite::Statement<'conn>,
+    select_entity: rusqlite::Statement<'conn>,
+    select_entities_category: rusqlite::Statement<'conn>,
+    top_200_categories_by_edges: rusqlite::Statement<'conn>,
 }
 impl<'conn> Statements<'conn> {
     fn new(conn: &'conn rusqlite::Connection) -> Self {
@@ -339,31 +412,40 @@ impl<'conn> Statements<'conn> {
                     "INSERT INTO entities (id, name_en, name_fr)
                         VALUES (?1, ?2, ?3);",
                 )
-                .expect("Failed base insert"),
+                .expect("Failed to prepare insert entity"),
             insert_position: conn
                 .prepare(
                     "INSERT INTO positions (id, lat, lon)
                         VALUES (?1, ?2, ?3);",
                 )
-                .expect("Failed base insert"),
+                .expect("Failed to prepare insert position"),
             insert_nature: conn
                 .prepare(
                     "INSERT INTO natures (id, nat)
                         VALUES (?1, ?2);",
                 )
-                .expect("Failed base insert"),
+                .expect("Failed to prepare insert nature"),
             insert_edge: conn
                 .prepare(
                     "INSERT OR IGNORE INTO edges (a, b)
                         VALUES (?1, ?2);",
                 )
-                .expect("Failed base insert"),
+                .expect("Failed to prepare insert edge"),
+            select_entity: conn
+                .prepare("SELECT id FROM entities WHERE id = ?1;")
+                .expect("Failed to prepare select entity"),
+            select_entities_category: conn
+                .prepare("SELECT e.name_en, e.name_fr, p.lon, p.lat FROM entities as e, natures as n, positions as p WHERE n.nat = ?1 and n.id = e.id and p.id = e.id;")
+                .expect("Failed to prepare select category"),
+            top_200_categories_by_edges: conn
+                .prepare("SELECT nat.nat, COUNT(edj.rowid) as c from edges as edj, natures as nat, entities as ent where ent.id = nat.id and edj.a = ent.id and nat.nat in (SELECT nat from natures where id = edj.b) GROUP BY nat.nat ORDER BY c DESC LIMIT 200;")
+                .expect("Failed to prepare top 200 categories"),
         }
     }
 }
 fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
-    let label_en = label(item, "en").unwrap_or_else(|| label_or_empty(item, "mul"));
-    let label_fr = label_or_empty(item, "fr");
+    let label_en = label(&item.labels, "en").unwrap_or_else(|| label_or_empty(&item.labels, "mul"));
+    let label_fr = label_or_empty(&item.labels, "fr");
 
     st.insert_entity
         .execute((item.id, label_en, label_fr))
@@ -434,9 +516,144 @@ fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
     });
 }
 
-fn label<'a>(item: &Element<'a>, lang: &str) -> Option<String> {
-    item.labels.get(lang).map(|l| l.value.to_string())
+fn label<'a>(labels: &Labels<'a>, lang: &str) -> Option<String> {
+    labels.get(lang).map(|l| l.value.to_string())
 }
-fn label_or_empty<'a>(item: &Element<'a>, lang: &str) -> String {
-    label(item, lang).unwrap_or_default()
+fn label_or_empty<'a>(labels: &Labels<'a>, lang: &str) -> String {
+    label(labels, lang).unwrap_or_default()
+}
+
+fn label_q<'a>(labels: &LabelsQuery<'a>, lang: &str) -> Option<String> {
+    labels.get(lang).map(|l| l.to_string())
+}
+fn label_or_empty_q<'a>(labels: &LabelsQuery<'a>, lang: &str) -> String {
+    label_q(labels, lang).unwrap_or_default()
+}
+
+fn fetch_missing_entity_name<'st>(
+    select_entity: &mut rusqlite::Statement<'st>,
+    insert_entity: &mut rusqlite::Statement<'st>,
+    id: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let present = match select_entity.query_one((id,), |_| Ok(())) {
+        Err(rusqlite::Error::QueryReturnedNoRows) => false,
+        Ok(_) => true,
+        Err(e) => return Err(format!("Cannot fetch: {e}").into()),
+    };
+    if present {
+        return Ok(());
+    }
+    // Category is not present - fetch its name responsibly from the wikidata API, and cache the
+    // result
+    let resp = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .user_agent(concat!("border-explorer v", env!("CARGO_PKG_VERSION")))
+        .cookie_store(true)
+        .build()?
+        .get(format!(
+            "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{id}/labels"
+        ))
+        .send()?
+        .bytes()?;
+    let names: LabelsQuery = serde_json::from_slice(&resp)?;
+    let label_en = label_q(&names, "en").unwrap_or_else(|| label_or_empty_q(&names, "mul"));
+    let label_fr = label_or_empty_q(&names, "fr");
+    insert_entity.execute((id, label_en, label_fr))?;
+    Ok(())
+}
+
+#[derive(Serialize)]
+struct GeoJsonNode {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    properties: GeoJsonNodeProp,
+    geometry: GeoJsonNodeGeo,
+}
+impl GeoJsonNode {
+    fn new(en: String, fr: String, coord: [f64; 2]) -> Self {
+        Self {
+            typ: "Feature",
+            properties: GeoJsonNodeProp { en, fr },
+            geometry: GeoJsonNodeGeo {
+                typ: "Point",
+                coord,
+            },
+        }
+    }
+}
+
+#[derive(Serialize)]
+struct GeoJsonNodeProp {
+    en: String,
+    fr: String,
+}
+#[derive(Serialize)]
+struct GeoJsonNodeGeo {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    coord: [f64; 2],
+}
+
+#[derive(Serialize)]
+struct GeoJsonRoot<'a> {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    data: GeoJsonRootNodes<'a>,
+}
+impl<'a> GeoJsonRoot<'a> {
+    fn new(r: RefCell<rusqlite::Rows<'a>>) -> Self {
+        Self {
+            typ: "geojson",
+            data: GeoJsonRootNodes {
+                typ: "FeatureCollection",
+                features: RowsNode { r },
+            },
+        }
+    }
+}
+#[derive(Serialize)]
+struct GeoJsonRootNodes<'a> {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    features: RowsNode<'a>,
+}
+
+struct RowsNode<'a> {
+    r: RefCell<rusqlite::Rows<'a>>,
+}
+
+impl<'a> Serialize for RowsNode<'a> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        fn err_conv(e: rusqlite::Error) -> String {
+            format!("got sql error {e}")
+        }
+        let mut seq = serializer.serialize_seq(None)?;
+        while let Some(ent) = self
+            .r
+            .borrow_mut()
+            .next()
+            .map_err(|e| ser::Error::custom(err_conv(e)))?
+        {
+            let name_en: String = ent.get(0).map_err(|e| ser::Error::custom(err_conv(e)))?;
+            let name_fr: String = ent.get(1).map_err(|e| ser::Error::custom(err_conv(e)))?;
+            let lat: String = ent.get(2).map_err(|e| ser::Error::custom(err_conv(e)))?;
+            let lon: String = ent.get(3).map_err(|e| ser::Error::custom(err_conv(e)))?;
+            seq.serialize_element(&GeoJsonNode::new(
+                name_en,
+                name_fr,
+                [
+                    lon.parse().map_err(|e| {
+                        serde::ser::Error::custom(format!("failed to parse {lon}: {e}"))
+                    })?,
+                    lat.parse().map_err(|e| {
+                        serde::ser::Error::custom(format!("failed to parse {lat}: {e}"))
+                    })?,
+                ],
+            ))?;
+        }
+        seq.end()
+    }
 }
