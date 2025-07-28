@@ -27,12 +27,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let conn = rusqlite::Connection::open("out.db")?;
     conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
     conn.execute(
-        "CREATE TABLE items (
+        "CREATE TABLE entities (
+            id TEXT primary key,
+            name_en TEXT,
+            name_fr TEXT
+        );",
+        (),
+    )?;
+    conn.execute(
+        "CREATE TABLE positions (
             id TEXT primary key,
             lat TEXT,
             lon TEXT,
-            name_en TEXT,
-            name_fr TEXT
+            FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
         );",
         (),
     )?;
@@ -40,11 +47,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "CREATE TABLE natures (
             id TEXT,
             nat TEXT,
-            FOREIGN KEY(id) REFERENCES items(id) ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
         );
         ",
         (),
     )?;
+    conn.execute("CREATE INDEX natures_id_nat ON natures(id, nat);", ())?;
     conn.execute(
         "CREATE TABLE edges (
             a TEXT not null,
@@ -54,27 +62,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (),
     )?;
 
-    conn.execute(
-        "CREATE INDEX edges_a ON edges(a);
-        ",
-        (),
-    )?;
-    conn.execute(
-        "CREATE INDEX edges_b ON edges(b);
-        ",
-        (),
-    )?;
+    conn.execute("CREATE INDEX edges_a ON edges(a);", ())?;
+    conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
+    let mut statements = Statements::new(&conn);
     if let Some(ref mut stdout) = cat.stdout {
         BufReader::new(stdout)
             .lines()
             .map_while(Result::ok)
             .enumerate()
-            // cheap filter for faster processing
+            // Skip empty first and last line
+            .filter(|(_, line)| line.len() > 2)
+            // cheap filter for faster processing; grepping multiple claims is much faster than
+            // json parsing, and does faster elimination of non-matching content
             .filter(|(_, line)| claims.iter().all(|claim| grep(line, claim)))
             .for_each(|(i, l)| {
-                if let Some(el) = query(&l, &claims, &natures) {
-                    println!("{i}: {}", format(&el));
-                    insert(&conn, &el);
+                let el = parse(&l);
+                if query(&el, &claims, &natures) {
+                    //println!("{i}: {}", format(&el));
+                    insert_base(&mut statements, &el);
+                    insert(&mut statements, &el);
                 }
             });
     }
@@ -110,7 +116,7 @@ fn lbzcat(file: &str) -> Result<process::Child, String> {
     Ok(cat)
 }
 
-fn grep<'a>(line: &'a str, needle: &str) -> bool {
+fn grep(line: &str, needle: &str) -> bool {
     memmem::find(line.as_ref(), needle.as_ref()).is_some()
 }
 
@@ -197,16 +203,23 @@ struct Label<'a> {
     //language: &'a str,
     value: Cow<'a, str>,
 }
-fn query<'a>(l: &'a str, claims: &[String], nature_ids: &[String]) -> Option<Element<'a>> {
-    //println!("{l}");
+fn parse<'a>(l: &'a str) -> Element<'a> {
+    //println!("line: {l}");
     let el: Element = serde_json::from_str(&l[0..(l.len() - 1)]).expect("not json");
+    el
+}
+fn query<'a>(el: &Element<'a>, claims: &[String], nature_ids: &[String]) -> bool {
+    //println!("{l}");
     /* Check that all claims we expect are indeed present */
-    claims
+    if !claims
         .iter()
         .all(|claim| el.claims.contains_key(claim.as_str()))
-        .then_some(())?;
+    {
+        return false;
+    }
+
     if nature_ids.is_empty() {
-        return Some(el);
+        return true;
     }
 
     if let Some(nature) = el.claims.get("P31") {
@@ -220,10 +233,10 @@ fn query<'a>(l: &'a str, claims: &[String], nature_ids: &[String]) -> Option<Ele
                 }
             })
         }) {
-            return Some(el);
+            return true;
         }
     }
-    None
+    false
 }
 
 fn claim_still_valid(claim: &Claim) -> bool {
@@ -296,6 +309,7 @@ fn format<'a>(item: &Element<'a>) -> String {
     )
 }
 
+#[expect(unused)]
 fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
     item.claims
         .get("P31")
@@ -311,14 +325,56 @@ fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
         });
 }
 
-fn insert<'a>(conn: &rusqlite::Connection, item: &Element<'a>) {
-    let label_en = label_or_empty(item, "en");
+struct Statements<'conn> {
+    insert_entity: rusqlite::Statement<'conn>,
+    insert_position: rusqlite::Statement<'conn>,
+    insert_nature: rusqlite::Statement<'conn>,
+    insert_edge: rusqlite::Statement<'conn>,
+}
+impl<'conn> Statements<'conn> {
+    fn new(conn: &'conn rusqlite::Connection) -> Self {
+        Self {
+            insert_entity: conn
+                .prepare(
+                    "INSERT INTO entities (id, name_en, name_fr)
+                        VALUES (?1, ?2, ?3);",
+                )
+                .expect("Failed base insert"),
+            insert_position: conn
+                .prepare(
+                    "INSERT INTO positions (id, lat, lon)
+                        VALUES (?1, ?2, ?3);",
+                )
+                .expect("Failed base insert"),
+            insert_nature: conn
+                .prepare(
+                    "INSERT INTO natures (id, nat)
+                        VALUES (?1, ?2);",
+                )
+                .expect("Failed base insert"),
+            insert_edge: conn
+                .prepare(
+                    "INSERT OR IGNORE INTO edges (a, b)
+                        VALUES (?1, ?2);",
+                )
+                .expect("Failed base insert"),
+        }
+    }
+}
+fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
+    let label_en = label(item, "en").unwrap_or_else(|| label_or_empty(item, "mul"));
     let label_fr = label_or_empty(item, "fr");
+
+    st.insert_entity
+        .execute((item.id, label_en, label_fr))
+        .expect("Failed base insert");
+}
+fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
     let natures = item
         .claims
         .get("P31")
         .unwrap_or_else(|| {
-            panic!("No nature for {}: {} - {}", item.id, label_en, label_fr);
+            panic!("No nature for {}", item.id);
         })
         .iter()
         .filter(|nat| claim_still_valid(nat))
@@ -361,45 +417,26 @@ fn insert<'a>(conn: &rusqlite::Connection, item: &Element<'a>) {
                 None // Ignore elements explicitly without any item to share border with, like Q71356
             }
         });
-    conn.execute(
-        "INSERT INTO items (id, lat, lon, name_en, name_fr)
-            VALUES (?1, ?2, ?3, ?4, ?5);",
-        (
-            item.id,
-            position.latitude,
-            position.longitude,
-            label_en,
-            label_fr,
-        ),
-    )
-    .expect("Failed insert");
+    st.insert_position
+        .execute((item.id, position.latitude, position.longitude))
+        .expect("Failed insert");
     natures.for_each(|nat| {
-        conn.execute(
-            "INSERT INTO natures (id, nat)
-                VALUES (?1, ?2);",
-            (item.id, nat),
-        )
-        .expect("Failed nature insert");
+        st.insert_nature
+            .execute((item.id, nat))
+            .expect("Failed nature insert");
     });
     connections.for_each(|edge| {
         let mut items = [item.id, edge];
         items.sort();
-        conn.execute(
-            "INSERT OR IGNORE INTO edges (a, b)
-                VALUES (?1, ?2);",
-            (items[0], items[1]),
-        )
-        .expect("Failed nature insert");
+        st.insert_edge
+            .execute((items[0], items[1]))
+            .expect("Failed edge insert");
     });
 }
 
+fn label<'a>(item: &Element<'a>, lang: &str) -> Option<String> {
+    item.labels.get(lang).map(|l| l.value.to_string())
+}
 fn label_or_empty<'a>(item: &Element<'a>, lang: &str) -> String {
-    item.labels
-        .get(lang)
-        .unwrap_or(&Label {
-            //language: "x",
-            value: Cow::from(""),
-        })
-        .value
-        .to_string()
+    label(item, lang).unwrap_or_default()
 }
