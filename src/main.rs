@@ -155,12 +155,17 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
     let idx = File::create_new("./geojson/index.json")?;
     serde_json::to_writer(idx, &categories)?;
 
-    let select_category = &mut statements.select_entities_category;
+    let select_nodes = &mut statements.select_entities_category;
+    let select_links = &mut statements.select_edges_category;
     for id in categories.keys() {
         let nodes = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
-        let entities = select_category.query((id,))?;
-        let geo = GeoJsonRoot::new(RefCell::new(entities));
+        let entities = select_nodes.query((id,))?;
+        let geo = GeoJsonRootEntities::new(RefCell::new(entities));
         serde_json::to_writer(nodes, &geo)?;
+        let links = File::create_new(format!("./geojson/{id}-links.geojson"))?;
+        let edges = select_links.query((id,))?;
+        let geo = GeoJsonRootLinks::new(RefCell::new(edges));
+        serde_json::to_writer(links, &geo)?;
     }
     Ok(())
 }
@@ -410,6 +415,7 @@ struct Statements<'conn> {
     insert_edge: rusqlite::Statement<'conn>,
     select_entity: rusqlite::Statement<'conn>,
     select_entities_category: rusqlite::Statement<'conn>,
+    select_edges_category: rusqlite::Statement<'conn>,
     top_200_categories_by_edges: rusqlite::Statement<'conn>,
 }
 impl<'conn> Statements<'conn> {
@@ -445,8 +451,11 @@ impl<'conn> Statements<'conn> {
             select_entities_category: conn
                 .prepare("SELECT e.name_en, e.name_fr, p.lon, p.lat FROM entities as e, natures as n, positions as p WHERE n.nat = ?1 and n.id = e.id and p.id = e.id;")
                 .expect("Failed to prepare select category"),
+            select_edges_category: conn
+                .prepare("SELECT a.lon, a.lat, b.lon, b.lat FROM edges as edj, natures as nat, entities as ent, positions as a, positions as b WHERE nat.nat = ?1 and ent.id = nat.id and edj.a = ent.id and nat.nat IN (SELECT nat from natures where id = edj.b) and edj.a = a.id and edj.b = b.id;")
+                .expect("Failed to prepare select category"),
             top_200_categories_by_edges: conn
-                .prepare("SELECT nat.nat, COUNT(edj.rowid) as c from edges as edj, natures as nat, entities as ent where ent.id = nat.id and edj.a = ent.id and nat.nat in (SELECT nat from natures where id = edj.b) GROUP BY nat.nat ORDER BY c DESC LIMIT 200;")
+                .prepare("SELECT nat.nat, COUNT(edj.rowid) as c FROM edges as edj, natures as nat, entities as ent WHERE ent.id = nat.id and edj.a = ent.id and nat.nat IN (SELECT nat from natures where id = edj.b) GROUP BY nat.nat ORDER BY c DESC LIMIT 200;")
                 .expect("Failed to prepare top 200 categories"),
         }
     }
@@ -622,12 +631,12 @@ struct GeoJsonNodeGeo {
 }
 
 #[derive(Serialize)]
-struct GeoJsonRoot<'a> {
+struct GeoJsonRootEntities<'a> {
     #[serde(rename = "type")]
     typ: &'static str,
     data: GeoJsonRootNodes<'a>,
 }
-impl<'a> GeoJsonRoot<'a> {
+impl<'a> GeoJsonRootEntities<'a> {
     fn new(r: RefCell<rusqlite::Rows<'a>>) -> Self {
         Self {
             typ: "geojson",
@@ -665,6 +674,98 @@ impl<'a> Serialize for RowsNode<'a> {
             .map_err(|e| ser::Error::custom(err_conv(e)))?
         {
             let node = GeoJsonNode::try_from(ent).map_err(ser::Error::custom)?;
+            seq.serialize_element(&node)?;
+        }
+        seq.end()
+    }
+}
+#[derive(Serialize)]
+struct GeoJsonRootLinks<'a> {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    data: GeoJsonRootEdges<'a>,
+}
+impl<'a> GeoJsonRootLinks<'a> {
+    fn new(r: RefCell<rusqlite::Rows<'a>>) -> Self {
+        Self {
+            typ: "geojson",
+            data: GeoJsonRootEdges {
+                typ: "FeatureCollection",
+                features: RowsEdges { r },
+            },
+        }
+    }
+}
+#[derive(Serialize)]
+struct GeoJsonEdge {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    properties: GeoJsonEdgeProp,
+    geometry: GeoJsonEdgeGeo,
+}
+impl GeoJsonEdge {
+    fn new(coorda: [f64; 2], coordb: [f64; 2]) -> Self {
+        Self {
+            typ: "Feature",
+            properties: GeoJsonEdgeProp {},
+            geometry: GeoJsonEdgeGeo {
+                typ: "LineString",
+                coordinates: [coorda, coordb],
+            },
+        }
+    }
+}
+#[derive(Serialize)]
+struct GeoJsonEdgeProp {}
+#[derive(Serialize)]
+struct GeoJsonEdgeGeo {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    coordinates: [[f64; 2]; 2],
+}
+
+impl<'st> TryFrom<&rusqlite::Row<'st>> for GeoJsonEdge {
+    type Error = Box<dyn Error>;
+
+    fn try_from(value: &rusqlite::Row<'st>) -> Result<Self, Self::Error> {
+        let mut f: [f64; 4] = [999999.99; 4];
+        for (i, coord) in f.iter_mut().enumerate() {
+            let val: String = value.get(i)?;
+            *coord = val
+                .parse()
+                .map_err(|e| format!("failed to parse float {val}: {e}"))?;
+        }
+        Ok(GeoJsonEdge::new([f[0], f[1]], [f[2], f[3]]))
+    }
+}
+#[derive(Serialize)]
+struct GeoJsonRootEdges<'a> {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    features: RowsEdges<'a>,
+}
+
+struct RowsEdges<'a> {
+    r: RefCell<rusqlite::Rows<'a>>,
+}
+
+// Failed to make it generic, let's copy paste instead
+impl<'a> Serialize for RowsEdges<'a> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        fn err_conv(e: rusqlite::Error) -> String {
+            format!("got sql error {e}")
+        }
+        let mut seq = serializer.serialize_seq(None)?;
+        while let Some(ent) = self
+            .r
+            .borrow_mut()
+            .next()
+            .map_err(|e| ser::Error::custom(err_conv(e)))?
+        {
+            let node = GeoJsonEdge::try_from(ent).map_err(ser::Error::custom)?;
             seq.serialize_element(&node)?;
         }
         seq.end()
