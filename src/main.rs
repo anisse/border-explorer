@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::env;
+use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::process;
@@ -11,7 +12,7 @@ use memchr::memmem;
 use serde::ser::{self, SerializeSeq};
 use serde::{Deserialize, Serialize, Serializer};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let file = env::args().nth(1).ok_or(ArgError {})?;
     let claims: Vec<String> = env::args()
         .nth(2)
@@ -34,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     generate_geojson(&mut statements)?;
     Ok(())
 }
-fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn std::error::Error>> {
+fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn Error>> {
     conn.execute(
         "CREATE TABLE entities (
             id TEXT primary key,
@@ -80,7 +81,7 @@ fn fill_db_from_dump(
     claims: Vec<String>,
     natures: Vec<String>,
     statements: &mut Statements,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let mut cat = lbzcat(&file)?;
     if let Some(ref mut stdout) = cat.stdout {
         BufReader::new(stdout)
@@ -107,7 +108,7 @@ fn fill_db_from_dump(
     Ok(())
 }
 
-fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn std::error::Error>> {
+fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
     // Get top 200 categories, and fetch their name
     //
     // Block those generic (too broad) categories that can be in many separate places:
@@ -175,7 +176,7 @@ impl std::fmt::Debug for ArgError {
         std::fmt::Display::fmt(self, f)
     }
 }
-impl std::error::Error for ArgError {}
+impl Error for ArgError {}
 
 fn lbzcat(file: &str) -> Result<process::Child, String> {
     let cat = process::Command::new("lbzcat")
@@ -538,7 +539,7 @@ fn fetch_missing_entity_name<'st>(
     select_entity: &mut rusqlite::Statement<'st>,
     insert_entity: &mut rusqlite::Statement<'st>,
     id: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let present = match select_entity.query_one((id,), |_| Ok(())) {
         Err(rusqlite::Error::QueryReturnedNoRows) => false,
         Ok(_) => true,
@@ -583,6 +584,26 @@ impl GeoJsonNode {
                 coord,
             },
         }
+    }
+}
+impl<'st> TryFrom<&rusqlite::Row<'st>> for GeoJsonNode {
+    type Error = Box<dyn Error>;
+
+    fn try_from(value: &rusqlite::Row<'st>) -> Result<Self, Self::Error> {
+        let name_en: String = value.get(0)?;
+        let name_fr: String = value.get(1)?;
+        let lat: String = value.get(2)?;
+        let lon: String = value.get(3)?;
+        Ok(GeoJsonNode::new(
+            name_en,
+            name_fr,
+            [
+                lon.parse()
+                    .map_err(|e| format!("failed to parse float {lon}: {e}"))?,
+                lat.parse()
+                    .map_err(|e| format!("failed to parse float {lat}: {e}"))?,
+            ],
+        ))
     }
 }
 
@@ -641,22 +662,8 @@ impl<'a> Serialize for RowsNode<'a> {
             .next()
             .map_err(|e| ser::Error::custom(err_conv(e)))?
         {
-            let name_en: String = ent.get(0).map_err(|e| ser::Error::custom(err_conv(e)))?;
-            let name_fr: String = ent.get(1).map_err(|e| ser::Error::custom(err_conv(e)))?;
-            let lat: String = ent.get(2).map_err(|e| ser::Error::custom(err_conv(e)))?;
-            let lon: String = ent.get(3).map_err(|e| ser::Error::custom(err_conv(e)))?;
-            seq.serialize_element(&GeoJsonNode::new(
-                name_en,
-                name_fr,
-                [
-                    lon.parse().map_err(|e| {
-                        serde::ser::Error::custom(format!("failed to parse {lon}: {e}"))
-                    })?,
-                    lat.parse().map_err(|e| {
-                        serde::ser::Error::custom(format!("failed to parse {lat}: {e}"))
-                    })?,
-                ],
-            ))?;
+            let node = GeoJsonNode::try_from(ent).map_err(ser::Error::custom)?;
+            seq.serialize_element(&node)?;
         }
         seq.end()
     }
