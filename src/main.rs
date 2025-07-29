@@ -152,6 +152,7 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
         }
     }
 
+    std::fs::create_dir_all("./geojson")?;
     let idx = File::create_new("./geojson/index.json")?;
     serde_json::to_writer(idx, &categories)?;
 
