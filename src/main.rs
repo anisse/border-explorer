@@ -75,7 +75,7 @@ fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn std::
     conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
     Ok(())
 }
-fn fill_db_from_dump<'a>(
+fn fill_db_from_dump(
     file: String,
     claims: Vec<String>,
     natures: Vec<String>,
@@ -136,10 +136,10 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn std::erro
         "Q82794",   // region
     ]);
     let top200 = &mut statements.top_200_categories_by_edges;
-    let select_category = &mut statements.select_entities_category;
-    let mut rows = top200.query([])?;
-    while let Some(row) = rows.next()? {
-        let id: String = row.get(0)?;
+    let rows = top200.query_map([], |row| row.get(0))?;
+    let mut categories = Vec::new();
+    for x in rows {
+        let id: String = x?;
         if !banned_generic_categories.contains(&id.as_str()) {
             // Make sure we have the description of this category.
             fetch_missing_entity_name(
@@ -147,12 +147,16 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn std::erro
                 &mut statements.insert_entity,
                 &id,
             )?;
-            let f = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
-            //write!(f, "");
-            let entities = select_category.query((id,))?;
-            let geo = GeoJsonRoot::new(RefCell::new(entities));
-            serde_json::to_writer(f, &geo)?;
+            categories.push(id);
         }
+    }
+
+    let select_category = &mut statements.select_entities_category;
+    for id in categories.iter() {
+        let f = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
+        let entities = select_category.query((id,))?;
+        let geo = GeoJsonRoot::new(RefCell::new(entities));
+        serde_json::to_writer(f, &geo)?;
     }
     Ok(())
 }
