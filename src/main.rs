@@ -138,26 +138,29 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
     ]);
     let top200 = &mut statements.top_200_categories_by_edges;
     let rows = top200.query_map([], |row| row.get(0))?;
-    let mut categories = Vec::new();
+    let mut categories = HashMap::new();
     for x in rows {
         let id: String = x?;
         if !banned_generic_categories.contains(&id.as_str()) {
             // Make sure we have the description of this category.
-            fetch_missing_entity_name(
+            let labels = fetch_missing_entity_name(
                 &mut statements.select_entity,
                 &mut statements.insert_entity,
                 &id,
             )?;
-            categories.push(id);
+            categories.insert(id, labels);
         }
     }
 
+    let idx = File::create_new("./geojson/index.json")?;
+    serde_json::to_writer(idx, &categories)?;
+
     let select_category = &mut statements.select_entities_category;
-    for id in categories.iter() {
-        let f = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
+    for id in categories.keys() {
+        let nodes = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
         let entities = select_category.query((id,))?;
         let geo = GeoJsonRoot::new(RefCell::new(entities));
-        serde_json::to_writer(f, &geo)?;
+        serde_json::to_writer(nodes, &geo)?;
     }
     Ok(())
 }
@@ -437,7 +440,7 @@ impl<'conn> Statements<'conn> {
                 )
                 .expect("Failed to prepare insert edge"),
             select_entity: conn
-                .prepare("SELECT id FROM entities WHERE id = ?1;")
+                .prepare("SELECT name_en, name_fr FROM entities WHERE id = ?1;")
                 .expect("Failed to prepare select entity"),
             select_entities_category: conn
                 .prepare("SELECT e.name_en, e.name_fr, p.lon, p.lat FROM entities as e, natures as n, positions as p WHERE n.nat = ?1 and n.id = e.id and p.id = e.id;")
@@ -539,15 +542,14 @@ fn fetch_missing_entity_name<'st>(
     select_entity: &mut rusqlite::Statement<'st>,
     insert_entity: &mut rusqlite::Statement<'st>,
     id: &str,
-) -> Result<(), Box<dyn Error>> {
-    let present = match select_entity.query_one((id,), |_| Ok(())) {
-        Err(rusqlite::Error::QueryReturnedNoRows) => false,
-        Ok(_) => true,
+) -> Result<HashMap<&'static str, String>, Box<dyn Error>> {
+    match select_entity.query_one((id,), |row| Ok((row.get(0), row.get(1)))) {
+        Err(rusqlite::Error::QueryReturnedNoRows) => {}
+        Ok((en, fr)) => {
+            return Ok(HashMap::from([("en", en?), ("fr", fr?)]));
+        }
         Err(e) => return Err(format!("Cannot fetch: {e}").into()),
     };
-    if present {
-        return Ok(());
-    }
     // Category is not present - fetch its name responsibly from the wikidata API, and cache the
     // result
     let resp = reqwest::blocking::Client::builder()
@@ -563,8 +565,8 @@ fn fetch_missing_entity_name<'st>(
     let names: LabelsQuery = serde_json::from_slice(&resp)?;
     let label_en = label_q(&names, "en").unwrap_or_else(|| label_or_empty_q(&names, "mul"));
     let label_fr = label_or_empty_q(&names, "fr");
-    insert_entity.execute((id, label_en, label_fr))?;
-    Ok(())
+    insert_entity.execute((id, &label_en, &label_fr))?;
+    Ok(HashMap::from([("en", label_en), ("fr", label_fr)]))
 }
 
 #[derive(Serialize)]
