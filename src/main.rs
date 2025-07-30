@@ -165,7 +165,16 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
         serde_json::to_writer(nodes, &geo)?;
         let links = File::create_new(format!("web/geojson/{id}-links.geojson"))?;
         let edges = select_links.query((id,))?;
-        let geo = GeoJsonRootLinks::new(RefCell::new(edges));
+        let coords = RowsEdges {
+            r: RefCell::new(edges),
+        };
+        let geo = serde_json::json!({
+            "type": "geojson",
+            "data": {
+                "type":"MultiLineString",
+                "coordinates": coords,
+            }
+        });
         serde_json::to_writer(links, &geo)?;
     }
     Ok(())
@@ -680,52 +689,15 @@ impl<'a> Serialize for RowsNode<'a> {
         seq.end()
     }
 }
-#[derive(Serialize)]
-struct GeoJsonRootLinks<'a> {
-    #[serde(rename = "type")]
-    typ: &'static str,
-    data: GeoJsonRootEdges<'a>,
-}
-impl<'a> GeoJsonRootLinks<'a> {
-    fn new(r: RefCell<rusqlite::Rows<'a>>) -> Self {
-        Self {
-            typ: "geojson",
-            data: GeoJsonRootEdges {
-                typ: "FeatureCollection",
-                features: RowsEdges { r },
-            },
-        }
-    }
-}
-#[derive(Serialize)]
-struct GeoJsonEdge {
-    #[serde(rename = "type")]
-    typ: &'static str,
-    properties: GeoJsonEdgeProp,
-    geometry: GeoJsonEdgeGeo,
-}
-impl GeoJsonEdge {
-    fn new(coorda: [f64; 2], coordb: [f64; 2]) -> Self {
-        Self {
-            typ: "Feature",
-            properties: GeoJsonEdgeProp {},
-            geometry: GeoJsonEdgeGeo {
-                typ: "LineString",
-                coordinates: [coorda, coordb],
-            },
-        }
-    }
-}
-#[derive(Serialize)]
-struct GeoJsonEdgeProp {}
-#[derive(Serialize)]
-struct GeoJsonEdgeGeo {
-    #[serde(rename = "type")]
-    typ: &'static str,
-    coordinates: [[f64; 2]; 2],
+
+struct RowsEdges<'a> {
+    r: RefCell<rusqlite::Rows<'a>>,
 }
 
-impl<'st> TryFrom<&rusqlite::Row<'st>> for GeoJsonEdge {
+struct LineCoord {
+    coordinates: [[f64; 2]; 2],
+}
+impl<'st> TryFrom<&rusqlite::Row<'st>> for LineCoord {
     type Error = Box<dyn Error>;
 
     fn try_from(value: &rusqlite::Row<'st>) -> Result<Self, Self::Error> {
@@ -736,18 +708,10 @@ impl<'st> TryFrom<&rusqlite::Row<'st>> for GeoJsonEdge {
                 .parse()
                 .map_err(|e| format!("failed to parse float {val}: {e}"))?;
         }
-        Ok(GeoJsonEdge::new([f[0], f[1]], [f[2], f[3]]))
+        Ok(LineCoord {
+            coordinates: [[f[0], f[1]], [f[2], f[3]]],
+        })
     }
-}
-#[derive(Serialize)]
-struct GeoJsonRootEdges<'a> {
-    #[serde(rename = "type")]
-    typ: &'static str,
-    features: RowsEdges<'a>,
-}
-
-struct RowsEdges<'a> {
-    r: RefCell<rusqlite::Rows<'a>>,
 }
 
 // Failed to make it generic, let's copy paste instead
@@ -766,8 +730,8 @@ impl<'a> Serialize for RowsEdges<'a> {
             .next()
             .map_err(|e| ser::Error::custom(err_conv(e)))?
         {
-            let node = GeoJsonEdge::try_from(ent).map_err(ser::Error::custom)?;
-            seq.serialize_element(&node)?;
+            let node = LineCoord::try_from(ent).map_err(ser::Error::custom)?;
+            seq.serialize_element(&node.coordinates)?;
         }
         seq.end()
     }
