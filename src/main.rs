@@ -587,13 +587,13 @@ struct GeoJsonNode {
     geometry: GeoJsonNodeGeo,
 }
 impl GeoJsonNode {
-    fn new(en: String, fr: String, coord: [f64; 2]) -> Self {
+    fn new(en: String, fr: String, coordinates: [f64; 2]) -> Self {
         Self {
             typ: "Feature",
             properties: GeoJsonNodeProp { en, fr },
             geometry: GeoJsonNodeGeo {
                 typ: "Point",
-                coord,
+                coordinates,
             },
         }
     }
@@ -604,8 +604,8 @@ impl<'st> TryFrom<&rusqlite::Row<'st>> for GeoJsonNode {
     fn try_from(value: &rusqlite::Row<'st>) -> Result<Self, Self::Error> {
         let name_en: String = value.get(0)?;
         let name_fr: String = value.get(1)?;
-        let lat: String = value.get(2)?;
-        let lon: String = value.get(3)?;
+        let lon: String = value.get(2)?;
+        let lat: String = value.get(3)?;
         Ok(GeoJsonNode::new(
             name_en,
             name_fr,
@@ -628,7 +628,7 @@ struct GeoJsonNodeProp {
 struct GeoJsonNodeGeo {
     #[serde(rename = "type")]
     typ: &'static str,
-    coord: [f64; 2],
+    coordinates: [f64; 2],
 }
 
 #[derive(Serialize)]
