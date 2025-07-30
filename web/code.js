@@ -40,10 +40,9 @@ map.touchPitch.disable();
 const load = map.once('load')
 
 async function loadBgLayer() {
-	layer = await getData("earth-coastlines-10km.geo.json")
         map.addSource('background', {
 		type: 'geojson',
-		data: layer
+		data: bgLayer
 	});
 	map.addLayer({
             'id': 'background',
@@ -64,9 +63,13 @@ async function loadBgLayer() {
 var index;
 var places;
 var links;
+var bgLayer;
 
 async function getIndex() {
 	index = await getData("geojson/index.json")
+}
+async function getBgLayer() {
+	bgLayer = await getData("earth-coastlines-10km.geo.json")
 }
 async function getNodes(id) {
 	places = await getData("geojson/" + id + "-nodes.geojson")
@@ -148,7 +151,10 @@ async function process() {
 }
 Promise.all(
 	[
-	load.then(loadBgLayer),
+	Promise.all([
+		load,
+		getBgLayer(),
+		]).then(loadBgLayer),
 	getIndex(),
 	getNodes("Q484170"),
 	getLinks("Q484170"),
