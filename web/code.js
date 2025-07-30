@@ -15,8 +15,8 @@ const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
 	attributionControl: {customAttribution: "<a href='https://anisse.astier.eu/wikidata-communes-viewer.html' target='_blank'>Anisse Astier</a>", compact: true},
-	center: params.center || [-35,3.0],
-	zoom: params["zoom"] || 1
+	center: params.center || [15,15],
+	zoom: params["zoom"] || 1.6
 });
 map.addControl(new maplibregl.NavigationControl({
 	visualizePitch: false,
