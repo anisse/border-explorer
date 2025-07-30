@@ -134,7 +134,7 @@ async function process() {
 		type: 'symbol',
 		source: 'places',
 		layout: {
-			'text-field': ['get', 'fr'],
+			'text-field': ['get', 'en'],
 			'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
 			'text-radial-offset': 0.5,
 			'text-justify': 'auto',
@@ -151,7 +151,7 @@ async function process() {
 	function updateFilter(value) {
 		if (!value)
 			return;
-		const filter = ['in', value.trim().toLowerCase(), ['downcase', ['get', 'fr']]];
+		const filter = ['in', value.trim().toLowerCase(), ['downcase', ['get', 'en']]];
 		map.setFilter('places', filter);
 		map.setFilter('labels', filter);
 	}
