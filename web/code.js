@@ -62,11 +62,20 @@ function init() {
 }
 
 
-var nodes;
-var links;
+var index;
+var borders;
+var communes;
 
-async function getData() {
-	const url = "communes-new.json";
+async function getIndex() {
+	index = await getData("geojson/index.json")
+}
+async function getNodes(id) {
+	communes = await getData("geojson/" + id + "-nodes.geojson")
+}
+async function getLinks(id) {
+	borders = await getData("geojson/" + id + "-links.geojson")
+}
+async function getData(url) {
 	try {
 		const response = await fetch(url);
 		if (!response.ok) {
@@ -79,77 +88,8 @@ async function getData() {
 		console.error(error.message);
 	}
 }
-async function massageData(communes) {
-	var communesNew = [];
-
-	while (communes.length) {
-		var randomIndex = Math.floor(Math.random() * communes.length);
-		element = communes.pop(randomIndex);
-		communesNew.push(element);
-	}
-	communes = communesNew;
-
-
-	var present_map = {};
-	var coord_map = {};
-	nodes = communes.filter(function(node) {
-		present = node.id in present_map;
-		present_map[node.id] = true;
-		return !present;
-	}).map(function (node, idx) {
-		let coord = [ node.coord.longitude, node.coord.latitude];
-		coord_map[node.id] = coord;
-		return {
-			type: 'Feature',
-			properties: {
-				description: node.name,
-				entity: node.id,
-			},
-			geometry: {
-				type: 'Point',
-				coordinates: coord
-			},
-		}
-	});
-	var link_map = {};
-	links = communes.flatMap(function (node) {
-		return node.conns.filter(function(dest) {
-			if (!dest)
-				return false;
-			let n1 = dest.slice(1);
-			let n2 = node.id.slice(1);
-			let start = Math.min(n1, n2);
-			let end = Math.max(n1, n2);
-			return !(start + "-" + end in link_map) && node.id in coord_map && dest in coord_map;
-		}).map(function(dest) {
-			let n1 = dest.slice(1);
-			let n2 = node.id.slice(1);
-			let start = Math.min(n1, n2);
-			let end = Math.max(n1, n2);
-			link_map[start + "-" + end] = true;
-			return {
-				type: 'Feature',
-				properties: {},
-				geometry: {
-					type: 'LineString',
-					coordinates: [
-						coord_map[node.id],
-						coord_map[dest],
-					],
-				},
-			}
-		})
-	});
-}
 async function process() {
-	communes = await getData();
-	map.addSource('communes_borders', {
-		type: 'geojson',
-		data: {
-			type: 'FeatureCollection',
-			features: links
-		}
-	});
+	map.addSource('communes_borders', borders);
 	map.addLayer({
 		'id': 'links',
 		'type': 'line',
@@ -159,13 +99,7 @@ async function process() {
 			'line-color': '#cdcdcd'
 		}
 	});
-	map.addSource('communes', {
-		type: 'geojson',
-		data: {
-			type: 'FeatureCollection',
-			features: nodes
-		}
-	});
+	map.addSource('communes', communes);
 	map.addLayer({
 		'id': 'places',
 		'type': 'circle',
@@ -186,7 +120,7 @@ async function process() {
 		type: 'symbol',
 		source: 'communes',
 		layout: {
-			'text-field': ['get', 'description'],
+			'text-field': ['get', 'fr'],
 			'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
 			'text-radial-offset': 0.5,
 			'text-justify': 'auto',
@@ -203,7 +137,7 @@ async function process() {
 	function updateFilter(value) {
 		if (!value)
 			return;
-		const filter = ['in', value.trim().toLowerCase(), ['downcase', ['get', 'description']]];
+		const filter = ['in', value.trim().toLowerCase(), ['downcase', ['get', 'fr']]];
 		map.setFilter('places', filter);
 		map.setFilter('labels', filter);
 	}
@@ -216,5 +150,7 @@ async function process() {
 Promise.all(
 	[
 	load.then(init),
-	getData().then(massageData),
+	getIndex(),
+	getNodes("Q484170"),
+	getLinks("Q484170"),
 	]).then(process);

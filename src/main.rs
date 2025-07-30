@@ -152,18 +152,18 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    std::fs::create_dir_all("./geojson")?;
-    let idx = File::create_new("./geojson/index.json")?;
+    std::fs::create_dir_all("web/geojson")?;
+    let idx = File::create_new("web/geojson/index.json")?;
     serde_json::to_writer(idx, &categories)?;
 
     let select_nodes = &mut statements.select_entities_category;
     let select_links = &mut statements.select_edges_category;
     for id in categories.keys() {
-        let nodes = File::create_new(format!("./geojson/{id}-nodes.geojson"))?;
+        let nodes = File::create_new(format!("web/geojson/{id}-nodes.geojson"))?;
         let entities = select_nodes.query((id,))?;
         let geo = GeoJsonRootEntities::new(RefCell::new(entities));
         serde_json::to_writer(nodes, &geo)?;
-        let links = File::create_new(format!("./geojson/{id}-links.geojson"))?;
+        let links = File::create_new(format!("web/geojson/{id}-links.geojson"))?;
         let edges = select_links.query((id,))?;
         let geo = GeoJsonRootLinks::new(RefCell::new(edges));
         serde_json::to_writer(links, &geo)?;
