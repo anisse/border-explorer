@@ -63,17 +63,17 @@ function init() {
 
 
 var index;
-var borders;
-var communes;
+var places;
+var links;
 
 async function getIndex() {
 	index = await getData("geojson/index.json")
 }
 async function getNodes(id) {
-	communes = await getData("geojson/" + id + "-nodes.geojson")
+	places = await getData("geojson/" + id + "-nodes.geojson")
 }
 async function getLinks(id) {
-	borders = await getData("geojson/" + id + "-links.geojson")
+	links = await getData("geojson/" + id + "-links.geojson")
 }
 async function getData(url) {
 	try {
@@ -89,21 +89,21 @@ async function getData(url) {
 	}
 }
 async function process() {
-	map.addSource('communes_borders', borders);
+	map.addSource('places_links', links);
 	map.addLayer({
 		'id': 'links',
 		'type': 'line',
 		'minzoom': 7,
-		'source': 'communes_borders',
+		'source': 'places_links',
 		'paint': {
 			'line-color': '#cdcdcd'
 		}
 	});
-	map.addSource('communes', communes);
+	map.addSource('places', places);
 	map.addLayer({
 		'id': 'places',
 		'type': 'circle',
-		'source': 'communes',
+		'source': 'places',
 		'paint': {
 			'circle-color': '#5470c6',
 			"circle-radius": [
@@ -118,7 +118,7 @@ async function process() {
 	map.addLayer({
 		id: 'labels',
 		type: 'symbol',
-		source: 'communes',
+		source: 'places',
 		layout: {
 			'text-field': ['get', 'fr'],
 			'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
