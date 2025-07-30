@@ -91,17 +91,29 @@ async function getData(url) {
 	}
 }
 async function process() {
-	map.addSource('places_links', links);
+	map.addSource('places_links', {
+		'type': 'geojson',
+		'data': {
+			'type': 'MultiLineString',
+			'coordinates': [],
+		},
+	});
 	map.addLayer({
 		'id': 'links',
 		'type': 'line',
-		'minzoom': 7,
+		'minzoom': 2,
 		'source': 'places_links',
 		'paint': {
 			'line-color': '#cdcdcd'
 		}
 	});
-	map.addSource('places', places);
+	map.addSource('places', {
+		'type': 'geojson',
+		'data': {
+			'type': 'FeatureCollection',
+			'features': [],
+		},
+	});
 	map.addLayer({
 		'id': 'places',
 		'type': 'circle',
@@ -149,13 +161,34 @@ async function process() {
 	});
 	updateFilter(params.filter);
 }
+async function initSelection() {
+	const select = document.getElementById("category");
+	Object.entries(index)
+		.sort(([,a],[,b]) => a.en.toLowerCase() > b.en.toLowerCase())
+		.forEach(([key, value]) => {
+			var option = document.createElement("option");
+			option.text = value.en;
+			option.value = key;
+			select.add(option);
+		})
+}
+async function onSelect() {
+	const select = document.getElementById("category");
+	select.addEventListener("change", (event) => {
+		const id = event.target.value;
+		getLinks(id).then(() => {
+			map.getSource("places_links").setData(links.data);
+		});
+		getNodes(id).then(() => {
+			map.getSource("places").setData(places.data);
+		});
+	});
+}
 Promise.all(
 	[
 	Promise.all([
-		load,
+		load.then(process),
 		getBgLayer(),
 		]).then(loadBgLayer),
-	getIndex(),
-	getNodes("Q484170"),
-	getLinks("Q484170"),
-	]).then(process);
+	getIndex().then(initSelection),
+	]).then(onSelect);
