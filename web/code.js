@@ -11,6 +11,9 @@ if (window.location.hash) {
 		params[key] = val;
 	});
 }
+function getUrl() {
+	return window.location.protocol + "//" + window.location.host+ window.location.pathname + "#zoom=" + map.getZoom() + "&center=" + map.getCenter().lng + "," + map.getCenter().lat
+}
 const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
