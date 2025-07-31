@@ -165,13 +165,7 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
         serde_json::to_writer(nodes, &geo)?;
         let links = File::create_new(format!("web/geojson/{id}-links.geojson"))?;
         let edges = select_links.query((id,))?;
-        let coords = RowsEdges {
-            r: RefCell::new(edges),
-        };
-        let geo = serde_json::json!({
-            "type":"MultiLineString",
-            "coordinates": coords,
-        });
+        let geo = GeoJsonRootEdges::new(edges);
         serde_json::to_writer(links, &geo)?;
     }
     Ok(())
@@ -678,6 +672,22 @@ impl<'a> Serialize for RowsNode<'a> {
     }
 }
 
+#[derive(Serialize)]
+struct GeoJsonRootEdges<'a> {
+    #[serde(rename = "type")]
+    typ: &'static str,
+    coordinates: RowsEdges<'a>,
+}
+impl<'a> GeoJsonRootEdges<'a> {
+    fn new(rows: rusqlite::Rows<'a>) -> Self {
+        Self {
+            typ: "MultiLineString",
+            coordinates: RowsEdges {
+                r: RefCell::new(rows),
+            },
+        }
+    }
+}
 struct RowsEdges<'a> {
     r: RefCell<rusqlite::Rows<'a>>,
 }
