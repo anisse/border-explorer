@@ -150,8 +150,11 @@ async function process() {
 	}
 	);
 	function updateFilter(value) {
-		if (!value)
+		if (!value) {
+			map.setFilter('places', null);
+			map.setFilter('labels', null);
 			return;
+		}
 		const filter = ['in', value.trim().toLowerCase(), ['downcase', getLabelExpr]];
 		map.setFilter('places', filter);
 		map.setFilter('labels', filter);
