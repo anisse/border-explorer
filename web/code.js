@@ -169,7 +169,7 @@ async function initSelection() {
 	const select = document.getElementById("category");
 	Object.entries(index)
 		.map(([key, value]) => [key, value[detectedLanguage] || value["en"]])
-		.sort(([,a],[,b]) => a.toLowerCase() > b.toLowerCase())
+		.sort(([,a],[,b]) => a.toLowerCase().localeCompare(b.toLowerCase()))
 		.forEach(([key, text]) => {
 			var option = document.createElement("option");
 			option.text = text;
