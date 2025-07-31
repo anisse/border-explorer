@@ -74,12 +74,6 @@ async function getIndex() {
 async function getBgLayer() {
 	bgLayer = await getData("earth-coastlines-10km.geo.json")
 }
-async function getNodes(id) {
-	places = await getData("geojson/" + id + "-nodes.geojson")
-}
-async function getLinks(id) {
-	links = await getData("geojson/" + id + "-links.geojson")
-}
 async function getData(url) {
 	try {
 		const response = await fetch(url);
@@ -192,12 +186,8 @@ async function onSelect() {
 	const select = document.getElementById("category");
 	select.addEventListener("change", (event) => {
 		const id = event.target.value;
-		getLinks(id).then(() => {
-			map.getSource("places_links").setData(links.data);
-		});
-		getNodes(id).then(() => {
-			map.getSource("places").setData(places.data);
-		});
+		map.getSource("places_links").setData("geojson/" + id + "-links.geojson");
+		map.getSource("places").setData("geojson/" + id + "-nodes.geojson");
 	});
 	select.selectedIndex = -1;
 	if (params.category in index) {

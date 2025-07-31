@@ -161,7 +161,7 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
     for id in categories.keys() {
         let nodes = File::create_new(format!("web/geojson/{id}-nodes.geojson"))?;
         let entities = select_nodes.query((id,))?;
-        let geo = GeoJsonRootEntities::new(RefCell::new(entities));
+        let geo = GeoJsonRootNodes::new(RefCell::new(entities));
         serde_json::to_writer(nodes, &geo)?;
         let links = File::create_new(format!("web/geojson/{id}-links.geojson"))?;
         let edges = select_links.query((id,))?;
@@ -169,11 +169,8 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
             r: RefCell::new(edges),
         };
         let geo = serde_json::json!({
-            "type": "geojson",
-            "data": {
-                "type":"MultiLineString",
-                "coordinates": coords,
-            }
+            "type":"MultiLineString",
+            "coordinates": coords,
         });
         serde_json::to_writer(links, &geo)?;
     }
@@ -641,27 +638,18 @@ struct GeoJsonNodeGeo {
 }
 
 #[derive(Serialize)]
-struct GeoJsonRootEntities<'a> {
-    #[serde(rename = "type")]
-    typ: &'static str,
-    data: GeoJsonRootNodes<'a>,
-}
-impl<'a> GeoJsonRootEntities<'a> {
-    fn new(r: RefCell<rusqlite::Rows<'a>>) -> Self {
-        Self {
-            typ: "geojson",
-            data: GeoJsonRootNodes {
-                typ: "FeatureCollection",
-                features: RowsNode { r },
-            },
-        }
-    }
-}
-#[derive(Serialize)]
 struct GeoJsonRootNodes<'a> {
     #[serde(rename = "type")]
     typ: &'static str,
     features: RowsNode<'a>,
+}
+impl<'a> GeoJsonRootNodes<'a> {
+    fn new(r: RefCell<rusqlite::Rows<'a>>) -> Self {
+        Self {
+            typ: "FeatureCollection",
+            features: RowsNode { r },
+        }
+    }
 }
 
 struct RowsNode<'a> {
