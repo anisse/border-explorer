@@ -12,7 +12,7 @@ if (window.location.hash) {
 	});
 }
 function getUrl() {
-	return window.location.protocol + "//" + window.location.host+ window.location.pathname + "#zoom=" + map.getZoom() + "&center=" + map.getCenter().lng + "," + map.getCenter().lat
+	return window.location.protocol + "//" + window.location.host+ window.location.pathname + "#zoom=" + map.getZoom() + "&center=" + map.getCenter().lng + "," + map.getCenter().lat + "&category=" + document.getElementById("category").value
 }
 const map = new maplibregl.Map({
 	container: 'map',
@@ -199,6 +199,11 @@ async function onSelect() {
 			map.getSource("places").setData(places.data);
 		});
 	});
+	select.selectedIndex = -1;
+	if (params.category in index) {
+		select.value = params.category;
+		select.dispatchEvent(new Event("change"));
+	}
 }
 Promise.all(
 	[
