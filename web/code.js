@@ -129,12 +129,13 @@ async function process() {
 			]
 		}
 	});
+	const getLabelExpr = ['case', ['to-boolean', ['get', detectedLanguage]], ['get', detectedLanguage], ['get', 'en']];
 	map.addLayer({
 		id: 'labels',
 		type: 'symbol',
 		source: 'places',
 		layout: {
-			'text-field': ['get', 'en'],
+			'text-field': getLabelExpr,
 			'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
 			'text-radial-offset': 0.5,
 			'text-justify': 'auto',
@@ -151,7 +152,7 @@ async function process() {
 	function updateFilter(value) {
 		if (!value)
 			return;
-		const filter = ['in', value.trim().toLowerCase(), ['downcase', ['get', 'en']]];
+		const filter = ['in', value.trim().toLowerCase(), ['downcase', getLabelExpr]];
 		map.setFilter('places', filter);
 		map.setFilter('labels', filter);
 	}
@@ -164,14 +165,23 @@ async function process() {
 async function initSelection() {
 	const select = document.getElementById("category");
 	Object.entries(index)
-		.sort(([,a],[,b]) => a.en.toLowerCase() > b.en.toLowerCase())
-		.forEach(([key, value]) => {
+		.map(([key, value]) => [key, value[detectedLanguage] || value["en"]])
+		.sort(([,a],[,b]) => a.toLowerCase() > b.toLowerCase())
+		.forEach(([key, text]) => {
 			var option = document.createElement("option");
-			option.text = value.en;
+			option.text = text;
 			option.value = key;
 			select.add(option);
 		})
 }
+function getLanguage() {
+	const langList = navigator.languages || ["en"];
+	return langList
+		.map((l) => l.split("-")[0])
+		.filter((l) => ["en", "fr"].includes(l))
+		[0] || "en";
+}
+const detectedLanguage = getLanguage();
 async function onSelect() {
 	const select = document.getElementById("category");
 	select.addEventListener("change", (event) => {
