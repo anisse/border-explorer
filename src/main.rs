@@ -13,27 +13,87 @@ use serde::ser::{self, SerializeSeq};
 use serde::{Deserialize, Serialize, Serializer};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let file = env::args().nth(1).ok_or(ArgError {})?;
-    let claims: Vec<String> = env::args()
-        .nth(2)
-        .ok_or(ArgError {})?
-        .split(",")
-        .map(String::from)
-        .collect();
-    let natures: Vec<String> = env::args()
-        .nth(3)
-        .unwrap_or("".to_string())
-        .split(",")
-        .skip_while(|s| s.is_empty())
-        .map(String::from)
-        .collect();
-    let mut conn = rusqlite::Connection::open("out.db")?;
+    let mut config = Config::default();
+    let mut args = env::args().skip(1);
+    if let Some(file) = args.next() {
+        config.intermediate_db_filename = file;
+    }
+    if let Some(file) = args.next() {
+        config.wikidata_dump_filename = Some(file);
+    }
+    if let Some(natures) = args.next() {
+        config.filtered_natures = natures
+            .split(",")
+            .skip_while(|s| s.is_empty())
+            .map(String::from)
+            .collect();
+    }
+    let mut conn = rusqlite::Connection::open(&config.intermediate_db_filename)?;
     conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
-    create_db_tables(&mut conn)?;
+    /* If no dump filename is passed, we consider that we already have an sqlite file to work with */
+    if config.wikidata_dump_filename.is_some() {
+        create_db_tables(&mut conn)?;
+    }
     let mut statements = Statements::new(&conn);
-    fill_db_from_dump(file, claims, natures, &mut statements)?;
-    generate_geojson(&mut statements)?;
+    if config.wikidata_dump_filename.is_some() {
+        fill_db_from_dump(&config, &mut statements)?;
+    }
+    generate_geojson(&mut statements, &config.banned_generic_categories)?;
     Ok(())
+}
+struct Config {
+    // I initially envisionned a pipeline that would be heavily configurable. But this is at odds
+    // with putting things in a fixed-schema SQL DB, otherwise we'd just be replicating the
+    // original wikidata graph database
+    //
+    // The below config options are provided with hardcoded defaults. There is no plan to make them
+    // any more configurable without modifying the code at this time
+    wikidata_dump_filename: Option<String>,
+    mandatory_claims: Vec<&'static str>,
+    filtered_natures: Vec<String>,
+    intermediate_db_filename: String,
+
+    banned_generic_categories: HashSet<&'static str>,
+}
+const NATURE_CLAIM: &str = "P31";
+const POSITION_CLAIM: &str = "P625";
+const SHARES_BORDER_WITH_CLAIM: &str = "P47";
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            wikidata_dump_filename: None,
+            mandatory_claims: vec![NATURE_CLAIM, POSITION_CLAIM, SHARES_BORDER_WITH_CLAIM],
+            filtered_natures: vec![],
+            intermediate_db_filename: "border-explorer.db".to_string(),
+
+            // Block those generic (too broad) categories that can be in many separate places:
+            banned_generic_categories: HashSet::from([
+                "Q79007",   // street
+                "Q3257686", // locality
+                "Q188509",  // suburb
+                "Q7543083", // avenue
+                "Q3957",    // town
+                "Q207934",  // avenue
+                "Q123705",  // neighborhood
+                "Q532",     // village
+                "Q34442",   // road
+                "Q54114",   // boulevard
+                "Q1549591", // big city
+                "Q486972",  // human settlement
+                "Q5004679", // path
+                "Q902814",  // border city
+                "Q2983893", // quarter
+                "Q515",     // city
+                "Q41176",   // building
+                "Q194203",  // arrondissement of France
+                "Q2198484", // municipal district // accross Canada, Ireland, and Russia
+                "Q3840711", // riverfront
+                "Q703941",  // private road
+                "Q82794",   // region
+            ]),
+        }
+    }
 }
 fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn Error>> {
     conn.execute(
@@ -76,13 +136,13 @@ fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn Error
     conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
     Ok(())
 }
-fn fill_db_from_dump(
-    file: String,
-    claims: Vec<String>,
-    natures: Vec<String>,
-    statements: &mut Statements,
-) -> Result<(), Box<dyn Error>> {
-    let mut cat = lbzcat(&file)?;
+fn fill_db_from_dump(config: &Config, statements: &mut Statements) -> Result<(), Box<dyn Error>> {
+    let mut cat = lbzcat(
+        config
+            .wikidata_dump_filename
+            .as_ref()
+            .ok_or("missing dump file name")?,
+    )?;
     if let Some(ref mut stdout) = cat.stdout {
         BufReader::new(stdout)
             .lines()
@@ -92,10 +152,15 @@ fn fill_db_from_dump(
             .filter(|(_, line)| line.len() > 2)
             // cheap filter for faster processing; grepping multiple claims is much faster than
             // json parsing, and does faster elimination of non-matching content
-            .filter(|(_, line)| claims.iter().all(|claim| grep(line, claim)))
+            .filter(|(_, line)| {
+                config
+                    .mandatory_claims
+                    .iter()
+                    .all(|claim| grep(line, claim))
+            })
             .for_each(|(_i, l)| {
                 let el = parse(&l);
-                if query(&el, &claims, &natures) {
+                if query(&el, config) {
                     //println!("{_i}: {}", _format(&el));
                     insert_base(statements, &el);
                     insert(statements, &el);
@@ -108,34 +173,11 @@ fn fill_db_from_dump(
     Ok(())
 }
 
-fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
+fn generate_geojson(
+    statements: &mut Statements,
+    banned_generic_categories: &HashSet<&'static str>,
+) -> Result<(), Box<dyn Error>> {
     // Get top 200 categories, and fetch their name
-    //
-    // Block those generic (too broad) categories that can be in many separate places:
-    let banned_generic_categories = HashSet::from([
-        "Q79007",   // street
-        "Q3257686", // locality
-        "Q188509",  // suburb
-        "Q7543083", // avenue
-        "Q3957",    // town
-        "Q207934",  // avenue
-        "Q123705",  // neighborhood
-        "Q532",     // village
-        "Q34442",   // road
-        "Q54114",   // boulevard
-        "Q1549591", // big city
-        "Q486972",  // human settlement
-        "Q5004679", // path
-        "Q902814",  // border city
-        "Q2983893", // quarter
-        "Q515",     // city
-        "Q41176",   // building
-        "Q194203",  // arrondissement of France
-        "Q2198484", // municipal district // accross Canada, Ireland, and Russia
-        "Q3840711", // riverfront
-        "Q703941",  // private road
-        "Q82794",   // region
-    ]);
     let top200 = &mut statements.top_200_categories_by_edges;
     let rows = top200.query_map([], |row| row.get(0))?;
     let mut categories = HashMap::new();
@@ -170,22 +212,6 @@ fn generate_geojson(statements: &mut Statements) -> Result<(), Box<dyn Error>> {
     }
     Ok(())
 }
-
-struct ArgError {}
-impl std::fmt::Display for ArgError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "not enough arguments. Usage:\nborder-explorer <wikidata bz2 json file> <comma separated mandatory claims (AND)> [comma separated possible natures (OR)]"
-        )
-    }
-}
-impl std::fmt::Debug for ArgError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self, f)
-    }
-}
-impl Error for ArgError {}
 
 fn lbzcat(file: &str) -> Result<process::Child, String> {
     let cat = process::Command::new("lbzcat")
@@ -292,24 +318,25 @@ fn parse<'a>(l: &'a str) -> Element<'a> {
     let el: Element = serde_json::from_str(&l[0..(l.len() - 1)]).expect("not json");
     el
 }
-fn query<'a>(el: &Element<'a>, claims: &[String], nature_ids: &[String]) -> bool {
+fn query<'a>(el: &Element<'a>, config: &Config) -> bool {
     //println!("{l}");
     /* Check that all claims we expect are indeed present */
-    if !claims
+    if !config
+        .mandatory_claims
         .iter()
-        .all(|claim| el.claims.contains_key(claim.as_str()))
+        .all(|claim| el.claims.contains_key(claim))
     {
         return false;
     }
 
-    if nature_ids.is_empty() {
+    if config.filtered_natures.is_empty() {
         return true;
     }
 
-    if let Some(nature) = el.claims.get("P31") {
+    if let Some(nature) = el.claims.get(NATURE_CLAIM) {
         if nature.iter().any(|nat| {
             //print!(".");
-            nature_ids.iter().any(|possible_nature| {
+            config.filtered_natures.iter().any(|possible_nature| {
                 if let Snak::Item { value } = &nat.mainsnak {
                     value.id == possible_nature && claim_still_valid(nat)
                 } else {
@@ -365,7 +392,7 @@ fn _format<'a>(item: &Element<'a>) -> String {
         "{} ({}): {}",
         item.id,
         item.claims
-            .get("P31")
+            .get(NATURE_CLAIM)
             .unwrap_or(&vec![])
             .iter()
             .map(|nat| if let Snak::Item { value } = &nat.mainsnak {
@@ -396,7 +423,7 @@ fn _format<'a>(item: &Element<'a>) -> String {
 #[expect(unused)]
 fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
     item.claims
-        .get("P31")
+        .get(NATURE_CLAIM)
         .unwrap_or(&vec![])
         .iter()
         .for_each(|nat| {
@@ -472,7 +499,7 @@ fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
 fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
     let natures = item
         .claims
-        .get("P31")
+        .get(NATURE_CLAIM)
         .unwrap_or_else(|| {
             panic!("No nature for {}", item.id);
         })
@@ -488,7 +515,7 @@ fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
     // We should not reach this code without an existing position
     let position = item
         .claims
-        .get("P625")
+        .get(POSITION_CLAIM)
         .expect("Should have a position")
         .iter()
         .filter_map(|pos| {
@@ -506,7 +533,7 @@ fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
     };
     let connections = item
         .claims
-        .get("P47")
+        .get(SHARES_BORDER_WITH_CLAIM)
         .expect("Should have connections")
         .iter()
         .filter_map(|pos| {
