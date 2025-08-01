@@ -30,6 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let mut conn = rusqlite::Connection::open(&config.intermediate_db_filename)?;
     conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
+
     /* If no dump filename is passed, we consider that we already have an sqlite file to work with */
     if config.wikidata_dump_filename.is_some() {
         db::create_tables(&mut conn)?;
@@ -96,7 +97,10 @@ impl Default for Config {
         }
     }
 }
-fn fill_db_from_dump(config: &Config, statements: &mut db::Statements) -> Result<(), Box<dyn Error>> {
+fn fill_db_from_dump(
+    config: &Config,
+    statements: &mut db::Statements,
+) -> Result<(), Box<dyn Error>> {
     let mut cat = lbzcat(
         config
             .wikidata_dump_filename
@@ -132,7 +136,6 @@ fn fill_db_from_dump(config: &Config, statements: &mut db::Statements) -> Result
     res.success().then_some(()).ok_or("failure")?;
     Ok(())
 }
-
 
 fn lbzcat(file: &str) -> Result<process::Child, String> {
     let cat = process::Command::new("lbzcat")
@@ -334,5 +337,3 @@ fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
             }
         });
 }
-
-
