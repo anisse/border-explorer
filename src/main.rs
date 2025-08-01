@@ -58,6 +58,7 @@ struct Config {
 const NATURE_CLAIM: &str = "P31";
 const POSITION_CLAIM: &str = "P625";
 const SHARES_BORDER_WITH_CLAIM: &str = "P47";
+const EXPIRY_CLAIM: &str = "P582";
 
 impl Default for Config {
     fn default() -> Self {
@@ -277,6 +278,7 @@ enum Snak<'a> {
 #[derive(Debug, Deserialize)]
 struct Time<'a> {
     time: &'a str,
+    precision: u8,
 }
 /*
 struct Mainsnak<'a> {
@@ -353,10 +355,11 @@ fn query<'a>(el: &Element<'a>, config: &Config) -> bool {
 fn claim_still_valid(claim: &Claim) -> bool {
     // check qualifier P582 (expiry date) of this claim
     if let Some(ref qualifiers) = claim.qualifiers {
-        if let Some(expiries) = qualifiers.get("P582") {
+        if let Some(expiries) = qualifiers.get(EXPIRY_CLAIM) {
             // Is it expired ? fixed date
             if claim_before(
                 expiries,
+                // TODO: use current year instead
                 DateTime::parse_from_rfc3339("2025-01-01T00:00:00+00:00").expect("Cannot fail"),
             ) {
                 return false;
@@ -369,18 +372,26 @@ fn claim_still_valid(claim: &Claim) -> bool {
 fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime<Tz>) -> bool {
     p582_qualifiers.iter().all(|expiry| {
         if let Snak::Time { value } = expiry {
-            //println!("{claim:?}: '{}'", value.time);
+            //println!("'{}' (precision {})", value.time, value.precision);
 
-            match DateTime::parse_from_str(value.time, "%+") {
-                //DateTime::parse_from_str(value.time, "%Y-%m-%dT%H:%M:%SZ").unwrap()
-                Ok(dt) => dt < cutoff,
+            let s = match value.precision {
+                0..=9 => &format!("{}-01-01T00:00:00Z", &value.time[..5]),
+                10 => &format!("{}-01T00:00:00Z", &value.time[..8]),
+                _ => value.time,
+            };
+            let dt = match DateTime::parse_from_str(s, "%+") {
+                Ok(dt) => dt.to_utc(),
                 Err(e) => {
-                    println!("Cannot parse date '{}': {e}", value.time);
+                    println!(
+                        "Cannot parse date '{}' of precision {}: {e}",
+                        s, value.precision
+                    );
                     /* Unparseable date, assume it's probably too old (year-only), and therefore
                      * the before the date we target*/
-                    true
+                    return true;
                 }
-            }
+            };
+            dt < cutoff
         } else {
             false
         }
