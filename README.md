@@ -2,7 +2,7 @@
 
 Browse places that are connected by a border, connected as a graph.
 
-This project contains a pipeline to extract from wikidata all the elements that share a border, and then organize them by categories to present them in a convenient view:
+This project contains a pipeline to extract from Wikidata all the elements that share a border, and then organize them by categories to present them in a convenient view:
 
 [Go to border explorer](https://anisse.github.io/border-explorer)
 
@@ -13,15 +13,36 @@ The [first version was viewing only French communes](https://anisse.astier.eu/wi
 
 Instead of learning SPARQL, I decided to do a first pass to put the data in an sqlite database; then a second pass generates geojson files to be viewed from SQL queries.
 
+# Dependencies
+
+ - lbzip2's lbzcat
+ - a recent rust toolchain
+ - a C compiler (to re-build sqlite)
+
+Crates:
+
+ - chrono: for parsing times in the dumps
+ - rusqlite: for sqlite access - uses a bundled version of sqlite3
+ - memchr: for fast filtering before json parsing
+ - serde and serde_json: for JSON parsing and geojson file generation
+ - reqwest: for fetching category names from Wikidata (< 200 HTTP requests in a run)
+
 # Running, building, etc.
 
-TODO.
+Build and run on a [bz2 JSON dump of Wikidata](https://www.wikidata.org/wiki/Wikidata:Database_download#JSON_dumps_(recommended)), storing the extracted information in temporary sqlite database `border-explorer.db`:
+`cargo run --release border-explorer.db ./wikidata/latest-all.json.bz2`
+
+This will generate the geojson files in `web/geojson/`; you can then use the website statically with a webserver at the root of `web/`.
 
 # FAQ
 
 ### Why do some categories have such an non-descriptive name?
 
-It comes from wikidata. Usually those categories have a good enough full description, but a very short name, like "district" or "province"; do not hesitate to contribute to wikidata to improve those in your language!
+It comes from Wikidata. Usually those categories have a good enough full description, but a very short name, like "district" or "province"; do not hesitate to contribute to Wikidata to improve those in your language!
+
+### Why do some categories seem to have incomplete information?
+
+It comes from Wikidata. Do not hesitate to [contribute](https://www.wikidata.org/wiki/Wikidata:Contribute)!
 
 ### Why do I only see names in English (or French)?
 
