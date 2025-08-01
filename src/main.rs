@@ -178,17 +178,6 @@ enum Snak<'a> {
     #[serde(rename = "time")]
     Time { value: Time<'a> },
 
-    // TODO: to remove (unused)
-    /*
-    #[serde(rename = "string")]
-    #[serde(alias = "url")]
-    Str { value: Cow<'a, str> },
-    #[serde(rename = "external-id")]
-    ExternalId(serde_json::Value),
-    commonsMedia(serde_json::Value),
-    quantity(serde_json::Value),
-    monolingualtext(serde_json::Value),
-    */
     // The rest
     #[allow(unused)]
     #[serde(untagged)]
@@ -199,26 +188,6 @@ struct Time<'a> {
     time: &'a str,
     precision: u8,
 }
-/*
-struct Mainsnak<'a> {
-    #[serde(borrow)]
-    datavalue: Datavalue<'a>,
-    datatype: Datatype,
-}
-
-#[derive(Deserialize)]
-#[non_exhaustive]
-enum Datatype {
-    #[serde(rename = "wikibase-entityid")]
-    WikibaseEntityId,
-    String,
-    GlobeCoordinate,
-}
-#[derive(Deserialize)]
-struct Datavalue<'a> {
-    value: serde_json::Value,
-}
-*/
 #[derive(Debug, Deserialize)]
 struct Value<'a> {
     id: &'a str,
