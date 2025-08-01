@@ -30,7 +30,10 @@ Crates:
 # Running, building, etc.
 
 Build and run on a [bz2 JSON dump of Wikidata](https://www.wikidata.org/wiki/Wikidata:Database_download#JSON_dumps_(recommended)), storing the extracted information in temporary sqlite database `border-explorer.db`:
-`cargo run --release border-explorer.db ./wikidata/latest-all.json.bz2`
+
+```sh
+cargo run --release border-explorer.db ./wikidata/latest-all.json.bz2
+```
 
 This will generate the geojson files in `web/geojson/`; you can then use the website statically with a webserver at the root of `web/`.
 
