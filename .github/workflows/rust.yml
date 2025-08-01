@@ -1,0 +1,53 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, ubuntu-22.04]
+        experimental: [false]
+        toolchain: [ "stable", "beta" ]
+        include:
+          - toolchain: "nightly"
+            experimental: true
+            os: ubuntu-24.04
+          - toolchain: "stable"
+            experimental: true
+            os: windows-latest
+          - toolchain: "stable"
+            experimental: true
+            os: macos-latest
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Prepare
+      if: runner.os == 'Linux'
+      run: sudo apt update && sudo apt install -y build-essential
+
+    - name: Install rust
+      id: toolchain
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        rustflags: ""
+        cache: false
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run tests
+      run: cargo test --verbose
