@@ -61,6 +61,6 @@ I invite you to open a discussion about this on Wikidata's wiki Discussion pages
 
 ### When will you update to a more recent Wikidata dump?
 
-Soon™…
+The current version comes from a July 30th Wikidata dump (size: 97523272340 bytes). In the future, I'd like to setup a weekly cron to get the dumps and run it automatically to get regular updates.
 
 
