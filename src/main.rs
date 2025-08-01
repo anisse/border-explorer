@@ -1,3 +1,4 @@
+mod db;
 mod geojson;
 
 use std::borrow::Cow;
@@ -31,9 +32,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
     /* If no dump filename is passed, we consider that we already have an sqlite file to work with */
     if config.wikidata_dump_filename.is_some() {
-        create_db_tables(&mut conn)?;
+        db::create_tables(&mut conn)?;
     }
-    let mut statements = Statements::new(&conn);
+    let mut statements = db::Statements::new(&conn);
     if config.wikidata_dump_filename.is_some() {
         fill_db_from_dump(&config, &mut statements)?;
     }
@@ -54,9 +55,9 @@ struct Config {
 
     banned_generic_categories: HashSet<&'static str>,
 }
-const NATURE_CLAIM: &str = "P31";
-const POSITION_CLAIM: &str = "P625";
-const SHARES_BORDER_WITH_CLAIM: &str = "P47";
+pub(crate) const NATURE_CLAIM: &str = "P31";
+pub(crate) const POSITION_CLAIM: &str = "P625";
+pub(crate) const SHARES_BORDER_WITH_CLAIM: &str = "P47";
 const EXPIRY_CLAIM: &str = "P582";
 
 impl Default for Config {
@@ -95,48 +96,7 @@ impl Default for Config {
         }
     }
 }
-fn create_db_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn Error>> {
-    conn.execute(
-        "CREATE TABLE entities (
-            id TEXT primary key,
-            name_en TEXT,
-            name_fr TEXT
-        );",
-        (),
-    )?;
-    conn.execute(
-        "CREATE TABLE positions (
-            id TEXT primary key,
-            lat TEXT,
-            lon TEXT,
-            FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
-        );",
-        (),
-    )?;
-    conn.execute(
-        "CREATE TABLE natures (
-            id TEXT,
-            nat TEXT,
-            FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
-        );
-        ",
-        (),
-    )?;
-    conn.execute("CREATE INDEX natures_id_nat ON natures(id, nat);", ())?;
-    conn.execute(
-        "CREATE TABLE edges (
-            a TEXT not null,
-            b TEXT not null,
-            UNIQUE(a, b)
-        );",
-        (),
-    )?;
-
-    conn.execute("CREATE INDEX edges_a ON edges(a);", ())?;
-    conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
-    Ok(())
-}
-fn fill_db_from_dump(config: &Config, statements: &mut Statements) -> Result<(), Box<dyn Error>> {
+fn fill_db_from_dump(config: &Config, statements: &mut db::Statements) -> Result<(), Box<dyn Error>> {
     let mut cat = lbzcat(
         config
             .wikidata_dump_filename
@@ -162,8 +122,8 @@ fn fill_db_from_dump(config: &Config, statements: &mut Statements) -> Result<(),
                 let el = parse(&l);
                 if query(&el, config) {
                     //println!("{_i}: {}", _format(&el));
-                    insert_base(statements, &el);
-                    insert(statements, &el);
+                    db::insert_base(statements, &el);
+                    db::insert(statements, &el);
                 }
             });
     }
@@ -311,7 +271,7 @@ fn query<'a>(el: &Element<'a>, config: &Config) -> bool {
     false
 }
 
-fn claim_still_valid(claim: &Claim) -> bool {
+pub(crate) fn claim_still_valid(claim: &Claim) -> bool {
     // check qualifier P582 (expiry date) of this claim
     if let Some(ref qualifiers) = claim.qualifiers {
         if let Some(expiries) = qualifiers.get(EXPIRY_CLAIM) {
@@ -404,138 +364,6 @@ fn count<'a>(natures: &mut HashMap<String, u64>, item: &Element<'a>) {
                 }
             }
         });
-}
-
-struct Statements<'conn> {
-    insert_entity: rusqlite::Statement<'conn>,
-    insert_position: rusqlite::Statement<'conn>,
-    insert_nature: rusqlite::Statement<'conn>,
-    insert_edge: rusqlite::Statement<'conn>,
-    select_entity: rusqlite::Statement<'conn>,
-    select_entities_category: rusqlite::Statement<'conn>,
-    select_edges_category: rusqlite::Statement<'conn>,
-    top_200_categories_by_edges: rusqlite::Statement<'conn>,
-}
-impl<'conn> Statements<'conn> {
-    fn new(conn: &'conn rusqlite::Connection) -> Self {
-        Self {
-            insert_entity: conn
-                .prepare(
-                    "INSERT INTO entities (id, name_en, name_fr)
-                        VALUES (?1, ?2, ?3);",
-                )
-                .expect("Failed to prepare insert entity"),
-            insert_position: conn
-                .prepare(
-                    "INSERT INTO positions (id, lat, lon)
-                        VALUES (?1, ?2, ?3);",
-                )
-                .expect("Failed to prepare insert position"),
-            insert_nature: conn
-                .prepare(
-                    "INSERT INTO natures (id, nat)
-                        VALUES (?1, ?2);",
-                )
-                .expect("Failed to prepare insert nature"),
-            insert_edge: conn
-                .prepare(
-                    "INSERT OR IGNORE INTO edges (a, b)
-                        VALUES (?1, ?2);",
-                )
-                .expect("Failed to prepare insert edge"),
-            select_entity: conn
-                .prepare("SELECT name_en, name_fr FROM entities WHERE id = ?1;")
-                .expect("Failed to prepare select entity"),
-            select_entities_category: conn
-                .prepare("SELECT e.name_en, e.name_fr, p.lon, p.lat FROM entities as e, natures as n, positions as p WHERE n.nat = ?1 and n.id = e.id and p.id = e.id;")
-                .expect("Failed to prepare select category"),
-            select_edges_category: conn
-                .prepare("SELECT a.lon, a.lat, b.lon, b.lat FROM edges as edj, natures as nat, entities as ent, positions as a, positions as b WHERE nat.nat = ?1 and ent.id = nat.id and edj.a = ent.id and nat.nat IN (SELECT nat from natures where id = edj.b) and edj.a = a.id and edj.b = b.id;")
-                .expect("Failed to prepare select category"),
-            top_200_categories_by_edges: conn
-                .prepare("SELECT nat.nat, COUNT(edj.rowid) as c FROM edges as edj, natures as nat, entities as ent WHERE ent.id = nat.id and edj.a = ent.id and nat.nat IN (SELECT nat from natures where id = edj.b) GROUP BY nat.nat ORDER BY c DESC LIMIT 200;")
-                .expect("Failed to prepare top 200 categories"),
-        }
-    }
-}
-fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
-    let label_en = label(&item.labels, "en").unwrap_or_else(|| label_or_empty(&item.labels, "mul"));
-    let label_fr = label_or_empty(&item.labels, "fr");
-
-    st.insert_entity
-        .execute((item.id, label_en, label_fr))
-        .expect("Failed base insert");
-}
-fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
-    let natures = item
-        .claims
-        .get(NATURE_CLAIM)
-        .unwrap_or_else(|| {
-            panic!("No nature for {}", item.id);
-        })
-        .iter()
-        .filter(|nat| claim_still_valid(nat))
-        .map(|nat| {
-            if let Snak::Item { value } = &nat.mainsnak {
-                value.id
-            } else {
-                panic!("No nature id")
-            }
-        });
-    // We should not reach this code without an existing position
-    let position = item
-        .claims
-        .get(POSITION_CLAIM)
-        .expect("Should have a position")
-        .iter()
-        .filter_map(|pos| {
-            if let Snak::GlobeCoordinate { ref value } = pos.mainsnak {
-                Some(value)
-            } else {
-                None
-            }
-        })
-        .next();
-    // Ignore item with no position
-    let position = match position {
-        Some(pos) => pos,
-        None => return,
-    };
-    let connections = item
-        .claims
-        .get(SHARES_BORDER_WITH_CLAIM)
-        .expect("Should have connections")
-        .iter()
-        .filter_map(|pos| {
-            //dbg!(&pos.mainsnak);
-            if let Snak::Item { ref value } = pos.mainsnak {
-                Some(value.id)
-            } else {
-                None // Ignore elements explicitly without any item to share border with, like Q71356
-            }
-        });
-    st.insert_position
-        .execute((item.id, position.latitude, position.longitude))
-        .expect("Failed insert");
-    natures.for_each(|nat| {
-        st.insert_nature
-            .execute((item.id, nat))
-            .expect("Failed nature insert");
-    });
-    connections.for_each(|edge| {
-        let mut items = [item.id, edge];
-        items.sort();
-        st.insert_edge
-            .execute((items[0], items[1]))
-            .expect("Failed edge insert");
-    });
-}
-
-fn label<'a>(labels: &Labels<'a>, lang: &str) -> Option<String> {
-    labels.get(lang).map(|l| l.value.to_string())
-}
-fn label_or_empty<'a>(labels: &Labels<'a>, lang: &str) -> String {
-    label(labels, lang).unwrap_or_default()
 }
 
 
