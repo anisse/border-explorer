@@ -60,6 +60,7 @@ pub(crate) const NATURE_CLAIM: &str = "P31";
 pub(crate) const POSITION_CLAIM: &str = "P625";
 pub(crate) const SHARES_BORDER_WITH_CLAIM: &str = "P47";
 const EXPIRY_CLAIM: &str = "P582";
+const SUBJECT_ROLE_CLAIM: &str = "P2868";
 
 impl Default for Config {
     fn default() -> Self {
@@ -288,6 +289,37 @@ fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime
         }
     })
 }
+
+pub(crate) fn claim_and_roles<'a>(claim: &'a Claim) -> impl Iterator<Item = &'a str> {
+    let main = if let Snak::Item { value } = &claim.mainsnak {
+        value.id
+    } else {
+        panic!("No nature id")
+    };
+    [main]
+        .into_iter()
+        .chain(claim.qualifiers.iter().flat_map(|quals| {
+            quals
+                .get(SUBJECT_ROLE_CLAIM)
+                .iter()
+                .flat_map(|roles| roles.iter())
+                .filter_map(|role| {
+                    if let Snak::Item { value } = role {
+                        Some(value.id)
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>()
+                .into_iter()
+        }))
+}
+
+/*
+struct QualifiersIterator {
+    qualifiers: Claim,
+}
+*/
 
 fn _format<'a>(item: &Element<'a>) -> String {
     format!(

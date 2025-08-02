@@ -4,8 +4,10 @@ use super::NATURE_CLAIM;
 use super::POSITION_CLAIM;
 use super::SHARES_BORDER_WITH_CLAIM;
 use super::Snak;
+use super::claim_and_roles;
 use super::claim_still_valid;
 
+use std::collections::HashSet;
 use std::error::Error;
 
 pub(crate) fn create_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<dyn Error>> {
@@ -118,13 +120,9 @@ pub(crate) fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
         })
         .iter()
         .filter(|nat| claim_still_valid(nat))
-        .map(|nat| {
-            if let Snak::Item { value } = &nat.mainsnak {
-                value.id
-            } else {
-                panic!("No nature id")
-            }
-        });
+        .flat_map(|nat| claim_and_roles(nat))
+        .collect::<HashSet<_>>()
+        .into_iter();
     // We should not reach this code without an existing position
     let position = item
         .claims
