@@ -61,6 +61,7 @@ pub(crate) const POSITION_CLAIM: &str = "P625";
 pub(crate) const SHARES_BORDER_WITH_CLAIM: &str = "P47";
 const EXPIRY_CLAIM: &str = "P582";
 const SUBJECT_ROLE_CLAIM: &str = "P2868";
+pub(crate) const SUBCLASS_OF_CLAIM: &str = "P279";
 
 impl Default for Config {
     fn default() -> Self {
@@ -122,6 +123,7 @@ fn fill_db_from_dump(
                     .mandatory_claims
                     .iter()
                     .all(|claim| grep(line, claim))
+                    || grep(line, SUBCLASS_OF_CLAIM)
             })
             .for_each(|(_i, l)| {
                 let el = parse(&l);
@@ -129,6 +131,9 @@ fn fill_db_from_dump(
                     //println!("{_i}: {}", _format(&el));
                     db::insert_base(statements, &el);
                     db::insert(statements, &el);
+                } else if el.claims.contains_key(SUBCLASS_OF_CLAIM) {
+                    db::insert_base(statements, &el);
+                    db::insert_subclass(statements, &el);
                 }
             });
     }

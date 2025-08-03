@@ -3,6 +3,7 @@ use super::Labels;
 use super::NATURE_CLAIM;
 use super::POSITION_CLAIM;
 use super::SHARES_BORDER_WITH_CLAIM;
+use super::SUBCLASS_OF_CLAIM;
 use super::Snak;
 use super::claim_and_roles;
 use super::claim_still_valid;
@@ -46,9 +47,18 @@ pub(crate) fn create_tables(conn: &mut rusqlite::Connection) -> Result<(), Box<d
         );",
         (),
     )?;
-
     conn.execute("CREATE INDEX edges_a ON edges(a);", ())?;
     conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
+    conn.execute(
+        "CREATE TABLE subclass (
+            id TEXT not null,
+            parent TEXT not null,
+            UNIQUE(id, parent)
+        );
+        ",
+        (),
+    )?;
+
     Ok(())
 }
 pub(crate) struct Statements<'conn> {
@@ -56,6 +66,7 @@ pub(crate) struct Statements<'conn> {
     insert_position: rusqlite::Statement<'conn>,
     insert_nature: rusqlite::Statement<'conn>,
     insert_edge: rusqlite::Statement<'conn>,
+    insert_subclass: rusqlite::Statement<'conn>,
     pub(crate) select_entity: rusqlite::Statement<'conn>,
     pub(crate) select_entities_category: rusqlite::Statement<'conn>,
     pub(crate) select_edges_category: rusqlite::Statement<'conn>,
@@ -85,6 +96,12 @@ impl<'conn> Statements<'conn> {
             insert_edge: conn
                 .prepare(
                     "INSERT OR IGNORE INTO edges (a, b)
+                        VALUES (?1, ?2);",
+                )
+                .expect("Failed to prepare insert edge"),
+            insert_subclass: conn
+                .prepare(
+                    "INSERT OR IGNORE INTO subclass (id, parent)
                         VALUES (?1, ?2);",
                 )
                 .expect("Failed to prepare insert edge"),
@@ -177,4 +194,26 @@ fn label<'a>(labels: &Labels<'a>, lang: &str) -> Option<String> {
 }
 fn label_or_empty<'a>(labels: &Labels<'a>, lang: &str) -> String {
     label(labels, lang).unwrap_or_default()
+}
+
+pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
+    item.claims
+        .get(SUBCLASS_OF_CLAIM)
+        .unwrap_or_else(|| {
+            panic!("No subclass for {}", item.id);
+        })
+        .iter()
+        .filter(|claim| claim_still_valid(claim))
+        .filter_map(|pos| {
+            if let Snak::Item { ref value } = pos.mainsnak {
+                Some((item.id, value.id))
+            } else {
+                None // Ignore elements without subclass id
+            }
+        })
+        .for_each(|(id, parent_id)| {
+            st.insert_subclass
+                .execute((id, parent_id))
+                .expect("Failed subclass insert");
+        });
 }
