@@ -112,10 +112,10 @@ impl<'conn> Statements<'conn> {
                 .prepare("SELECT e.name_en, e.name_fr, p.lon, p.lat FROM entities as e, natures as n, positions as p WHERE n.nat = ?1 and n.id = e.id and p.id = e.id;")
                 .expect("Failed to prepare select category"),
             select_edges_category: conn
-                .prepare("SELECT a.lon, a.lat, b.lon, b.lat FROM edges as edj, natures as nat, entities as ent, positions as a, positions as b WHERE nat.nat = ?1 and ent.id = nat.id and edj.a = ent.id and nat.nat IN (SELECT nat from natures where id = edj.b) and edj.a = a.id and edj.b = b.id;")
+                .prepare("SELECT a.lon, a.lat, b.lon, b.lat FROM edges as edj, natures as nat, positions as a, positions as b WHERE nat.nat = ?1 and edj.a = nat.id and and nat.nat IN (SELECT nat from natures where id = edj.b) and edj.a = a.id and edj.b = b.id;")
                 .expect("Failed to prepare select category"),
             top_200_categories_by_edges: conn
-                .prepare("SELECT nat.nat, COUNT(edj.rowid) as c FROM edges as edj, natures as nat, entities as ent WHERE ent.id = nat.id and edj.a = ent.id and nat.nat IN (SELECT nat from natures where id = edj.b) GROUP BY nat.nat ORDER BY c DESC LIMIT 200;")
+                .prepare("SELECT nat.nat, COUNT(edj.rowid) as c FROM edges as edj, natures as nat WHERE edj.a = nat.id AND nat.nat IN (SELECT nat from natures where id = edj.b) GROUP BY nat.nat ORDER BY c DESC LIMIT 200;")
                 .expect("Failed to prepare top 200 categories"),
         }
     }
