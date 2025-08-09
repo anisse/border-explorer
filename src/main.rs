@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     /* If no dump filename is passed, we consider that we already have an sqlite file to work with */
     if config.wikidata_dump_filename.is_some() {
-        db::create_tables(&mut conn)?;
+        db::create_tables(&mut conn, &config.banned_generic_categories)?;
     }
     let mut statements = db::Statements::new(&conn);
     if config.wikidata_dump_filename.is_some() {
@@ -77,33 +77,21 @@ impl Default for Config {
             filtered_natures: vec![],
             intermediate_db_filename: "border-explorer.db".to_string(),
 
-            // Block those generic (too broad) categories that can be in many separate places:
-            banned_generic_categories: HashSet::from([
-                "Q79007",   // street
-                "Q3257686", // locality
-                "Q188509",  // suburb
-                "Q7543083", // avenue
-                "Q3957",    // town
-                "Q207934",  // avenue
-                "Q123705",  // neighborhood
-                "Q532",     // village
-                "Q34442",   // road
-                "Q54114",   // boulevard
-                "Q1549591", // big city
-                "Q486972",  // human settlement
-                "Q5004679", // path
-                "Q902814",  // border city
-                "Q2983893", // quarter
-                "Q515",     // city
-                "Q41176",   // building
-                "Q194203",  // arrondissement of France
-                "Q2198484", // municipal district // accross Canada, Ireland, and Russia
-                "Q3840711", // riverfront
-                "Q703941",  // private road
-                "Q82794",   // region
-            ]),
+            // Block those generic (too broad) categories that can be in many separate places, or
+            // not useful enough to display in general
+            banned_generic_categories: parse_banned_categories(include_str!(
+                "../banned-categories.tsv"
+            )),
         }
     }
+}
+fn parse_banned_categories(s: &'static str) -> HashSet<&'static str> {
+    s.lines()
+        // Ignore comments
+        .filter(|l| l.bytes().next().unwrap_or(b'#') != b'#')
+        // Keep only first column of Tab-Separated-Values
+        .filter_map(|l| l.split("\t").next())
+        .collect()
 }
 fn fill_db_from_dump(
     config: &Config,

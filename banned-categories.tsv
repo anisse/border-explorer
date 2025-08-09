@@ -1,0 +1,1000 @@
+Q488383	object	anything that may be observed or acted upon by a subject
+Q35120	entity	anything that can be considered, discussed, or observed
+Q7048977	abstract entity	entity that does not have a physical existence, including abstract objects and properties
+Q53617489	independent continuant	BFO subclass of persistant entities, which separately includes material entities and immaterial entities
+Q103940464	continuant	entity that persists, endures, or continues to exist through time while maintaining its identity
+Q58415929	spatio-temporal entity	object with a position in time and/or space, and possibly an extent in time and/or space
+Q937228	property	predominant feature that characterizes a being, a thing, a phenomenon, etc. and which differentiates one being from another, one thing from another
+Q67518978	occurrent	entity that unfolds itself in time, or instantaneous boundary of such an entity (for example a beginning or an ending), or temporal or spatiotemporal region that such an entity occupies
+Q1190554	occurrence	occurrence of a fact or object in space-time; instantiation of a property in an object
+Q53617407	material entity	independent continuant that is spatially extended whose identity is independent of that of other entities and can be maintained through time
+Q4406616	concrete object	a particular or specific instance of an entity. To describe tangible or physical objects use Q223557
+Q132907471	individual item	a non-class item, largest first order class
+Q27096213	geographic entity	relatively stationary place or entity that can be geographically identified, located, or described
+Q123349660	geolocatable entity	entity that may be assigned mostly stable geographic coordinates and/or geocoded
+Q17334923	physical location	property describing the position of something in space
+Q618123	geographical feature	components of planets that can be geographically located
+Q16686448	artificial object	anything created by humans (either material or mental)
+Q386724	work	intellectual or artistic creation
+Q2434238	heritage	property, custom, or other material, immaterial or natural object inherited from previous generations, and conserved for its importance for future generations
+Q210272	cultural heritage	physical artifact or intangible attribute of a society inherited from past generations
+Q1791627	cultural artifact	artifact created or modified by humans which gives information about the culture of its creator and users
+Q30060700	scientific object	type of object
+Q3695082	sign	semiotic concept; object, quality, event, or entity whose presence or occurrence indicates the probable presence or occurrence of something else; includes words, punctuation, expressions, gestures, notices, road signs, symbols, pictures, etc.
+Q1272626	representation	entity or process that portrays something else, usually in a simplified or approximated manner
+Q930933	relation	general relation between different objects or individuals
+Q864377	multiset	mathematical set with repetitions allowed
+Q846537	generalized function	generalizations of mathematical functions, elements of a space that extends a function space
+Q845789	observable	in physics, a dynamic variable that can be measured
+Q748349	mathematical structure	additional mathematical object that, in some manner, attaches (or relates) to that set to endow it with some additional meaning or significance
+Q71550118	individual quantity	superclass of physical, chemical, ... quantity; members are individual quantities like 5 kg, 2 apples, ...
+Q629085	multivalued function	binary relation, which is left-total, but may not be right-unique ; isomorph to another function from the same source set, but to the power set of the codomain of the initial function
+Q54940067	serial relation	binary relation such that every element of the left set has a corresponding element in the right set
+Q5371079	emic unit	anything that comes under any of the various linguistic concepts named by names ending in "-eme", such as phoneme or morpheme
+Q4833865	abstract structure	type of abstraction in science, mathematics, and philosophy
+Q47574	unit of measurement	real scalar quantity, defined and adopted by convention, with which any other quantity of the same kind can be compared to express the ratio of the two quantities as a number (VIM)
+Q4373292	physical property	attribute of a physical system or body; OR non-chemical property of a material
+Q4026292	action	something an agent can do or perform
+Q39875001	measure	standard against which something can be judged
+Q38885242	physico-chemical property	type of property
+Q370502	mapping	binary relation which is left-total (defined on all its input set)
+Q36161	set	well-defined mathematical collection of distinct objects
+Q309314	quantity	property that exists in a range of magnitudes or multitudes; property that can exist as a magnitude or multitude
+Q29182544	assignment	any act of associating items in one class with items in another class, using any or no criteria
+Q2912517	value	notion in mathematics
+Q246672	mathematical object	abstract object in mathematics
+Q24034552	mathematical concept	abstract entity in mathematics
+Q2204117	symmetric tensor	tensor invariant under permutations of vectors it acts on
+Q2198779	unit	entity regarded or used as an elementary structural or functional constituent to measure, analyse or describe another entity
+Q217594	class	mathematical collection of sets that can be defined based on a property of its members (set theory)
+Q2145290	mental representation	hypothetical internal cognitive symbol that represents external reality
+Q2091629	magnitude	mathematical concept related to comparison and ordering
+Q205464	algebraic structure	set equipped with one or more finitary operations defined on it
+Q203066	relation	property that assigns truth values to k-tuples of individuals
+Q1952404	multilinear map	from two vector spaces to a third one
+Q188524	tensor	multilinear map on some combination of scalars, vectors, covectors, and tensors
+Q1851710	structure	set together with an interpretation of a given first-order language
+Q181175	scalar quantity	quantity represented by a scalar: quantity having no direction
+Q1786828	constituent	word or a group of words that functions as a single unit within a hierarchical structure
+Q1756942	partial function	function whose actual domain of definition may be smaller than its input set
+Q15916540	semantic unit	linguistic unit that carries meaning (citation needed; does it really *carry* meaning? how many meanings does a semantic unit have?)
+Q151885	concept	semantic unit understood in different ways, e.g. as mental representation, ability or abstract object (philosophy)
+Q1347367	aptitude	ability to perform an action or fulfill a role
+Q134488202	possibly infinitary structure	generalization of structure which allows infinitary operations and relations
+Q1325769	antisymmetric tensor	tensor equal to the negative of any of its transpositions
+Q130901	binary relation	set of ordered pairs with first element in A and second element in B
+Q1289248	scalar	single field element, e.g. real number, in the context of linear algebra
+Q1207505	quality	distinguishing feature
+Q11953984	linguistic unit	any of a range of units of language, whether a word, phrase, clause, sentence, paragraph, whole conversation or a story, morpheme, grapheme, phoneme and syllable
+Q11348	function	association of a single output to each input
+Q107715	physical quantity	quantitative characterization of an aspect of a physical entity, phenomenon, event, process, transformation, relation, system, or substance
+Q107223533	relation (mathematics)	
+Q123410745	geometric object	
+Q25404640	spatial object	thing occupying some space, entity that can be contained within a region of space
+Q472971	space	mathematical notion; set with an additional structure
+Q179899	topological space	set of points and set of neighborhoods that satisfy axioms relating those points to those neighborhoods
+Q3965271	subclass	class whose elements are all elements of a given other class
+Q26713767	spatial region	zone in physical space defined by fixed or transient boundaries
+Q23956024	spacetime region	class that contains 4 dimensional point sets (volumes) in physical spacetime
+Q213363	open set	set that does not contain any of its boundary points
+Q177646	subset	set whose elements are all contained in another set
+Q1491995	connected space	topological space that cannot be written as the disjoint union of two nonempty open subsets
+Q127244	Gδ set	countable intersection of open sets
+Q124711467	immaterial entity	BFO class
+Q11235244	domain	connected open subset of a finite-dimensional vector space
+Q82794	region	2D or 3D defined space on something, mainly in terrestrial and astrophysics sciences
+Q27096235	artificial geographic entity	non-natural geographic entities such as settlements, infrastructure, and excavations
+Q99527517	collective entity	entity that is a composite of other entities
+Q58778	system	set of interacting or interdependent components
+Q483247	phenomenon	any object, fact, or occurrence perceived or observed
+Q30241068	observable entity	entity which can be experienced or observed directly by human senses
+Q3505845	state	abstract term that denotes the presence of stable values of a set of variables of an object
+Q6671777	structure	arrangement and organization of interrelated elements in an object or system, or the object or system so organized
+Q12893838	order	state of a set of things being arranged
+Q28813620	set	group of items regarded as one
+Q16887380	group	well-defined, enumerable collection of discrete entities that form a collective whole
+Q98119401	group or class of physical objects	category of physical objects that share the same characteristics
+Q61961344	group of physical objects	
+Q4835091	territory	geographic region belonging to or controlled by a person or entity
+Q15642541	human-geographic territorial entity	territorial entity of which the borders are determined by physiographic and human features
+Q21871294	group or class of living things	second-order class of living things
+Q16334298	group of living things	set of live physical entities of any nature
+Q16334295	group of humans	any set of human beings
+Q134602526	group or class of beings	second-order class of entities with agency
+Q134602505	group of beings	any set of entities with agency
+Q134601875	group or class of people	second-order class of people (beings with personhood)
+Q134601727	group of persons	any set of beings with personhood (for groups of humans, use Q16334295 [group of humans] with P31 [instance of])
+Q134261520	group or class of humans	second-order class of humans
+Q1639378	social system	patterned series of interrelationships existing between individuals, groups, and institutions
+Q830077	subject	being who has a unique consciousness and/or unique personal experiences, or an entity that has a relationship with another entity that exists outside of itself
+Q24229398	being	distinct and identifiable entity with agency, capable of performing actions
+Q854457	complex system	system composed of many interacting components
+Q43229	organization	social entity established to meet needs or pursue goals
+Q131085629	collective agent	an agent who is a gathering or organization of two or more persons that bears a particular name and that is capable of acting as a unit
+Q106668099	corporate body	in library science, a collective agent that is composed of persons who are organized for a common purpose or activity; collective agent includes corporate bodies and families
+Q106559804	person or organization	class of agents
+Q211606	social structure	aggregate of patterned social arrangements in society
+Q178706	institution	structure or mechanism of social order and cooperation governing the behaviour of a set of individuals within a given community
+Q7210356	political organization	group involved with politics
+Q130370861	law, advocacy and politics	activity of nonprofit-organizations
+Q56061	administrative territorial entity	territorial entity for administration purposes, with or without its own local government
+Q3455524	administrative region	term for certain administrative divisions in some countries
+Q18810687	political institution	part of the political system of a state
+Q16562419	political entity	territorial political body such as a state or local government
+Q1063239	polity	group of people who are collectively united by a self-reflected cohesive force such as identity, who have a capacity to mobilize resources, and are organized by some form of institutionalized hierarchy
+Q1048835	political territorial entity	region accepted to be in the jurisdiction of a particular government entity
+Q13196193	part	separate element of a larger entity. For integral parts, see Q1310239.
+Q48907157	section of populated place	inhabited territory part of a human settlement
+Q12076836	administrative territorial entity of a single country	class of all the administrative division types used by a given country administration
+Q1799794	administrative territorial entity of a specific level	type of administrative territorial entity
+Q3778211	legal person	any human or non-human entity that is recognized as having privileges and obligations; a legal fiction which is used to abstract away the differences between natural persons, juridical persons and other entities such as countries
+Q155076	juridical person	organization recognized by law as a fictitious person
+Q895526	governing body	a designated body with authority
+Q2659904	government organization	organization administrated by a government authority or agency
+Q1549152	public institution	an organization for public use
+Q192611	electoral unit	territorial division made or used for elections
+Q15284	municipality	administrative division having corporate status and usually powers of self-government or jurisdiction
+Q223557	physical object	singular aggregation of tangible substance(s) such as matter or radiation, with overall properties
+Q2424752	product	anything that can be offered to a market
+Q8205328	artificial physical object	physical object made or shaped by humans
+Q811430	fixed construction	artificially constructed entity meant to remain at a fixed geographic location
+Q994895	technical system	system created through engineering
+Q811979	architectural structure	human-designed and -made structure
+Q15710813	physical structure	body or assemblage of bodies in space that form a system capable of supporting loads
+Q1454986	physical system	portion of the physical universe chosen for analysis; everything outside the system is known as the environment
+Q134301417	E25 Human-Made Feature	This class comprises physical features that are purposely created by human activity, such as scratches, artificial caves, artificial water channels, etc. In particular, it includes the information encoding features on mechanical or digital carriers.
+Q11908691	artificial physical structure	human-made system of connected force-bearing elements
+Q15042037	statistical territorial entity	areas designated as significant due to high population density, economic activity, or other reasons
+Q2221906	geographic location	point, line or area on or near Earth
+Q163359	local administrative unit in the NUTS system	lower level of division in the NUTS system
+Q11618417	LAU 2	former designation type for local administrative units within the EU's NUTS geocode standard
+Q14757767	fourth-level administrative division	administrative division subordinate to or under administration of a third-level division
+Q21980538	commercial organization	business/company working for profit in contrast to a non-profit company
+Q783794	company	legal entity representing an association of people, whether natural, legal or a mixture of both, with a specific objective
+Q167037	corporation	legal entity incorporated through a legislative or registration process
+Q192498	administrative territorial entity of France	class grouping all types of territorial divisions of France (administrative or electoral)
+Q7188	government	system or group of people governing an organized community, often a state
+Q6501447	local government	lowest tier of administration within a sovereign state
+Q3266850	commune	administrative entity in different countries
+Q837766	local authority	corporation below the sovereign state level that has its own deliberative assembly
+Q583865	territorial collectivity of France	French public person using its competences autonomously over a particular territory: commune, department, region, overseas collectivity, or territorial collectivity with specific status
+#Q484170	commune of France	France territorial subdivision for municipalities
+Q1970309	natural object	naturally occurring object in a natural state, without modification by human effort
+Q16686022	natural physical object	natural thing that exists that humans did not make
+Q121359	infrastructure	fundamental facilities and systems serving a country, city, or other areas
+Q5196078	curved space	spatial geometry which is not "flat" or Euclidean
+Q107	space	a three-dimensional extent within which entities exist and have physical relationships to each other
+Q35145743	artificial geographic object	alterations to land created by people
+Q4430275	social space	physical or virtual space such as a social center, online social media, or other gathering place where people gather and interact
+Q294440	public space	places for public use
+Q2015628	open space	opening in a public place, in towns and cities squares or plazas
+Q111414683	physical social space	physical space where people gather and interact
+Q376799	transport infrastructure	fixed installations that allow vehicles to operate
+Q11794693	linear construction	construction where one dimension is considerable longer than the other dimensions
+Q83620	thoroughfare	transportation route connecting one location to another
+Q2874718	axis of communication	
+Q123414165	road or street	transport infrastructure
+Q1322323	itinerary	route of a journey
+Q1297806	transport route	route on which goods, persons or data are transported
+Q34442	road	wide way leading from one place to another, especially one with a specially prepared surface which vehicles can use
+Q27955379	road transport infrastructure	infrastructure related to road transport
+Q113519195	long, thin object	physical object that in Japanese is counted with the 本 counter
+Q79007	street	public thoroughfare in a built environment like a village or city
+Q99018632	group of geographic locations	set of several geographic entities spread over a geographic region
+Q66661745	group of artificial physical objects	group of physical objects made or shaped by human hand
+Q18247357	group of structures or buildings	architectural structures or buildings that do not form a building complex, but are treated as a group
+Q17489659	group of works	any set of works
+Q486972	human settlement	place of any size, in which people permanently live
+Q123964505	populated place	place in which people live, permanently or temporarily
+#Q13221722	third-level administrative division	administrative division subordinate to or under administration of a second-level division
+#Q13220204	second-level administrative division	administrative division subordinate to or under administration of a first-level division
+Q3257686	locality	place of human settlement
+Q702492	urban area	large area with high population density and infrastructure of built environment
+Q5127848	class	group of things derived from extensional or intensional definition (philosophy)
+Q16889133	class	collection of items defined by common characteristics
+Q10541491	legal form	type of legal entity within certain legal system
+Q327333	government agency	organisational part of a government responsible for specific public services, such as health, judiciary, education, transportation, foreign affairs, etc
+Q15642566	non-political administrative territorial entity	country subdivision that does not have its own government and exists only for administrative purposes
+#Q5616099	census division	official census terminology used in the United States and Canada
+#Q1053463	census geographic unit of Canada	term used in Canada
+#Q3183364	administrative territorial entity of Spain	subclass of administrative territorial entities
+#Q17457753	census subdivision	an area in Canada designated for census purposes
+#Q2824645	administrative territorial entity of Italy	
+Q48909258	third-order administrative division	statistical classification in GeoNames
+#Q747074	commune of Italy	municipal divisions of Italy
+#Q1763214	municipio	country subdivisions in several Hispanophone and Lusophone nations
+#Q2074737	municipality of Spain	administrative territorial entity of Spain
+Q7604698	statutory authority	body set up by law which is authorised to enact legislation
+Q699386	statutory corporation	corporation created by State, varying by jurisdiction in different states
+#Q2183520	obec	Czech and Slovak word for a municipality
+Q123705	neighborhood	geographically localized community within a larger city, town or suburb
+Q3507889	administrative territorial entity of the Czech Republic	
+#Q5153359	municipality of the Czech Republic	administrative territorial division of the Czech Republic
+Q10374536	administrative territorial entity of Brazil	subdivisions of Brazil
+#Q3184121	municipality of Brazil	administrative division of the states in Brazil
+Q124250988	urban settlement	human settlement with high population density and infrastructure of built environment
+Q7930989	city or town	type of human settlement
+Q852446	administrative territorial entity of the United States	states, the District of Columbia, territories; and their subdivisions
+Q188509	suburb	human settlement that is part of or near to a larger city or town
+Q149621	district	type of administrative division, in some countries
+Q17361443	administrative territorial entity of a state of the United States	
+#Q13360155	county or county-equivalent	division of the United States
+Q28575	county	geographical and administrative region in some countries
+Q387917	administrative divisions of Germany	entities in the administrative structure of Germany
+#Q47168	county of the United States	subdivision used by most states in the United States of America
+Q4976993	civil parish	administrative, non-ecclesiastical, division
+Q3957	town	settlement that is smaller than a city but bigger than a large village (or a large borough in some areas)
+Q1850442	administrative territorial entity of Japan	type of region within Japan
+#Q262166	municipality in Germany	lowest official level of territorial division in Germany
+Q948571	organ of state	body with power given by the state
+Q35798	executive branch	branch of the government that has sole authority and responsibility for the administration of the state
+Q25107	power	ability to influence the behavior of others
+Q2324993	state power	type of political power
+Q2101636	political power	power given to man by holding a political office
+Q18340964	power	philosophical concept
+Q9305769	municipal government	governing body of a particular territory
+Q2097994	municipal corporation	legal term for a local governing body
+Q855451	administrative territorial entity of Poland	administrative territorial entity of a single country
+Q10864048	first-level administrative division	administrative division directly subordinate to or under administration of a national government
+Q1342205	administrative territorial entity of Peru	administrative subdivision of Peru
+#Q2179958	district of Peru	third level administrative subdivision of Peru
+Q15633191	distrito	Spanish-language subdivision term
+Q96088545	former geographical object	geographical object that has been abandoned, destroyed or demolished
+Q15893266	former entity	entity that no longer operates or is terminated
+#Q15334	gmina	municipal-level administrative division of Poland
+Q52551684	historical geographic location	countries known in remote history (as Byzantium) or former names of countries reflecting political changes in the 19th or 20th century (as East Germany)
+Q1620908	historical region	geographic or cultural region which existed in the past, that may or may not exist anymore
+Q19832712	historical administrative division	administrative division which existed in the past, that may or may not still exist.  (Use subclass Q19953632 for divisions which no longer exist).
+Q515	city	large human settlement
+Q19953632	former administrative territorial entity	administrative division which is no longer in use
+Q48748864	corporation in Japan	group of persons operating for a certain purpose as established under Japanese law
+Q27116296	local public entity	local government in Japan
+Q11448232	establisher of a school	legal term for the entity that established an educational institution in Japanese law
+Q11391926	public service corporation	legal status in Japan
+#Q1054813	municipality of Japan	municipalities in Japan in four types
+Q3750285	administrative territorial entity of Canada	different levels of administrative divisions of Canada
+Q7543083	avenue	wide, straight, usually tree-lined road or approach
+Q117351898	ordinary local public entity	One of Japan's local public entities, prefectures and municipalities.
+Q361733	administrative territorial entity of Austria	
+#Q117351913	city, town or village of Japan	collective term for municipalities of Japan, excluding special wards
+Q10354598	rural settlement	settlement in the areas defined as rural by a governmental office
+Q532	village	small clustered human settlement smaller than a town
+Q2983893	quarter	division or section, region or part of a town, city or municipality, which may be an administrative unit
+Q782198	administrative territorial entity of Australia	territorial subdivision of Australia
+#Q667509	municipality of Austria	local administrative unit in Austria
+#Q116457956	non-urban municipality in Germany	municipality without town privileges in Germany
+Q19730508	former municipality	municipality that no longer exists as independent entity
+#Q7632426	suburb/locality	gazetted geographic subdivision of Australia
+#Q3788231	municipal government in Canada	type of local council authority in Canada
+#Q41773366	NUTS 3 statistical territorial entity	
+Q688718	administrative territorial entity of Quebec	overview of political subdivisions of Quebec
+Q2520520	administrative territorial entity of Hungary	types of government divisions within Hungary
+Q11917457	subdivisions of Catalonia	outline of Catalonia's administrative subdivisions
+Q717478	administrative territorial entity of the United Kingdom	geographical subdivisions of local government in Great Britain and Northern Ireland
+#Q33146843	municipality of Catalonia	administrative division of Catalonia, Spain
+Q15640612	fifth-level administrative division	administrative division subordinate to or under administration of a fourth-level division
+#Q81063407	local administrative entity of quebec	
+Q21869758	delegated commune	
+Q7631075	administrative territorial entity of Switzerland	overview about the subdivisions of Switzerland
+Q171634	administrative territorial entity of England	administrative division or non-administrative ceremonial area of England
+#Q70208	municipality of Switzerland	smallest government division in Switzerland
+#Q8776398	collective population entity of Spain	statistic unit
+#Q55102916	parish of Asturias	subdivision (parroquia) of Asturias, Spain
+Q1626455	parroquia	term used in Spanish-speaking countries, equivalent to the English parish
+#Q14502790	settlement of Hungary	
+Q1350310	administrative territorial entity of the Philippines	four levels of administrative divisions in the Philippines
+Q34876	province	administrative division in several countries
+#Q1115575	civil parish	territorial designation and lowest tier of local government in England, UK
+#Q3327873	local municipality of Quebec	administrative division of the province of Quebec, Canada
+#Q5124673	Scottish civil parish	civil administrative division of Scotland, below the level of local authority
+#Q65948724	neighborhood in Japan	administrative divisions in Japan
+#Q3327870	municipality in the United States	type of administrative territorial division in the United States
+#Q3504085	rural municipality	administrative division of Poland
+#Q98433835	suburb/locality of Tasmania	gazetted geographic subdivision of Tasmania
+#Q115252541	municipal part	part of the municipality with a separate row of house numbers
+Q207934	avenue	straight route with a line of trees or large shrubs running along each side
+#Q28111	township in the United States	one of several types of geographic areas
+Q19610511	township	designation for an administrative territorial entity
+Q4286337	city district	type of administrative division
+#Q1394476	civil township	unit of local government in the United States
+#Q2590631	municipality of Hungary	administrative division of Hungary
+#Q24764	municipality of the Philippines	administrative division in Philippine provinces
+Q11618279	LAU 1	former designation type for local administrative units within the EU's NUTS geocode standard
+Q2365748	administrative territorial entity of India	subnational administrative units of India
+Q125855456	statistical territorial entity of India	a unit of the Indian census
+#Q123754112	municipality of the Valencian Community	municipality of the autonomous Valencian Community, Spain
+#Q253019	Ortsteil	named subdivision or section of a human settlement in Germany, Austria or Switzerland
+Q20719696	physico-geographical object	a physical as opposed to abstract geographical object
+#Q54115138	municipality of New Jersey	political division of the state of New Jersey, United States
+Q2897903	goods and services	outcome of human efforts to meet the wants and needs of people
+Q15253706	city	type of populated places in South Korea, Japan, the United States, China, North Korea, Taiwan, and France
+#Q494721	city of Japan	administrative division of Japan
+Q28877	goods	tangible or intangible thing, except a service, that satisfies human wants and provides utility
+Q1400881	property	physical or intangible entity, owned by a person or a group of people
+#Q5327369	chōchō	subdivision of a city in Japan
+Q15623264	subdivisions of Belgium	
+Q31464082	source	entity (person, place, text, thing, etc.) from which something (information, goods, etc.) comes or is acquired
+Q1554231	resource	source or supply from which benefit is produced
+Q46737	asset	economic resource, from which future economic benefits are expected
+Q104127086	memory	information stored in the mind, including facts, knowledge, skills, and episodic memories
+Q12488383	content	matter or entity that is contained
+Q11028	information	that which informs; the answer to a question; that from which knowledge can be derived
+Q9081	knowledge	mental possession of information or skills, often contributing to understanding
+Q1151067	rule	prescription, including laws, regulations, instructions, guidelines, and social conventions; determinate method for performing any operation
+Q628523	message	discrete unit of communication intended by the source for consumption by some recipient or group of recipients
+Q15621286	intellectual work	work created through human thought and perception, including creative work
+Q6042535	intangible property	describes something which a person or corporation can have ownership of and can transfer ownership to another person or corporation, but has no physical substance, for example brand identity or knowledge/intellectual property
+Q2386606	subjective right	legal position allowing a person to require a certain thing from another person or other persons
+Q2006324	agreement	understanding between entities to follow a specific course of conduct
+Q1146011	exclusive right	a non-tangible prerogative existing in law
+Q780687	rights	fundamental legal, social, or ethical principles of freedom or entitlement according to some legal system, social convention, or ethical theory
+Q427581	intangible asset	asset that lacks physical substance and usually is very hard to evaluate
+Q332624	erga omnes	Latin term used for legal purposes
+Q321839	agreement	understanding, agreement between two or more contracting persons, parties or entities
+Q202722	consensus	general agreement on a subject
+Q131257	intellectual property	intangible asset consisting of ownership of ideas and processes
+Q7748	law	system of rules and guidelines, generally backed by governmental authority
+Q96196009	former or current state	political state, whether former or current
+Q874405	social group	two or more humans who interact with one another
+Q21157127	cluster	collection of entities that are physically or conceptually close to each other
+Q177634	community	social unit of human organisms who share common values
+Q533309	administrative territorial entity of Norway	
+Q2920644	environment	in systems and engineering, part of the universe outside the boundaries of a system
+Q3299260	local government area	administrative division of a country that a local government is responsible for
+#Q755707	municipality of Norway	type of administrative division in Norway
+Q52105	habitat	ecological or environmental area inhabited by a particular species; natural environment in which an organism lives, or the physical environment that surrounds a species population
+Q43619	natural environment	all living and non-living things occurring naturally on Earth or some region thereof
+#Q19576	wilayah	administrative division
+Q15324	body of water	any significant accumulation of water, generally on a planet's surface
+Q2507626	water area	an area of water surrounded by natural or artificial boundaries
+Q1896989	subject of international law	
+#Q493522	municipality of Belgium	administrative division of Belgium
+Q7275	state	organised community living under a system of government; either a sovereign state, constituent state, or federated state
+Q3523102	source of information	source of information for somebody, i.e. anything that might inform a person about something or provide knowledge about it
+Q286583	manifestation	physical or digital embodiment of an information artifact
+Q161243	dependent territory	territory that does not possess full political independence as a sovereign state
+Q646728	administrative territorial entity of Finland	
+Q1434505	administrative territorial entity of Indonesia	Tiers of government
+Q41791733	statistical territorial entity of Portugal	
+#Q3775649	subregion of Portugal	
+Q863944	land waters	all areas of water and watercourses located on land, including groundwater
+Q51041800	religious administrative entity	entity with control over a religion or part of a religion
+Q20926517	religious administrative territorial entity	religious administration over a geographic area
+Q5982983	jurisdiction	distinct area subject to a government and set of laws, such as a country or federated state
+Q1530022	religious organization	organization that supports the practice of a religion
+Q1492823	ecclesiastical district	Christian administrative territorial entity of any size or name
+#Q2479431	open water	body of water
+#Q1389310	waterbody	coherent sub-unit in the river basin (district) to which the environmental objectives of the Water Framework Directive apply
+Q13539802	place with town rights and privileges	place with town rights and privileges
+Q94670589	Christian organization	organization related to Christianity
+Q23955632	Catholic organization	organization sharing similar beliefs and goals as the Roman Catholic Church
+Q50218	administrative territorial entity of the Republic of China	class of region within Republic of China
+#Q111737478	Catholic ecclesiastical district	
+Q380230	administrative territorial entity of Portugal	overview about the administrative territorial entity of Portugal
+#Q665487	diocese	Christian district or see under the supervision of a bishop
+#Q16615865	coastal water body	a surface water body extending up to one nautical mile from the territorial water baseline, extending where appropriate up to the outer limit of transitional waters
+Q163740	nonprofit organization	organization operated for a collective benefit
+#Q3146899	diocese of the Catholic Church	Those sees that are under the supervision of a bishop of the Catholic church
+#Q12479774	second-level administrative country subdivision in Indonesia	administrative division in Indonesia below province, it includes kota (city) or kabupaten (regency)
+Q558941	administrative territorial entity of Yemen	types of bureaucratic divisions in Yemen
+#Q23010647	suburb of Perth	geographically localised and defined community within metropolitan Perth, Western Australia
+Q37866906	information resource	resource meant to distribute information
+Q49848	document	form for preservation of structured and identified information
+#Q42744322	urban municipality in Germany	municipality with town privileges in Germany (may e.g. legally prepend "Stadt" to its name)
+Q15630906	rural district	designation for an administrative territorial entity
+#Q247073	powiat	second-level administrative division of Poland
+Q2836357	administrative territorial entity of Guatemala	
+#Q123127825	regencies and cities of Indonesia	second-level subdivision of Indonesia
+#Q12081657	township level division of the Republic of China	ADM3 in Taiwan
+Q12076831	hierarchy of administrative territorial entities of countries in Europe	
+Q4057633	hierarchy of administrative territorial entities	structure by which a state is subdivided for administration
+Q2067937	tree structure	way of representing the hierarchical nature of a structure in a graphical form
+Q1531349	outline	list arranged to show hierarchical relationships
+Q243669	subdivisions of Slovakia	
+Q54114	boulevard	type of large road, usually running through a city
+#Q6617100	district of Yemen	division of a governorate of Yemen
+#Q18511725	market town	settlement that has the right to host markets
+#Q15623456	administrative territorial entity of a defunct state	administrative territorial entity of a state no longer existing
+#Q1872284	municipality of Guatemala	administrative division
+#Q1802801	rural municipality of Austria	type of Austrian rural municipality
+Q1549591	big city	city with a population of at least 100,000
+#Q856076	municipality of Finland	local level of administration in Finland
+Q8435708	administrative territorial entity of Cyprus Republic	
+#Q7604380	statistical area of the United States	defined statistical regions of the United States
+#Q5951278	urban area of the United States	statistical area of the United States, defined by the U.S. Census Bureau
+#Q1093829	city in the United States	administrative division at the local government level in the United States
+Q2916486	administrative territorial entity type of Turkey	provinces and districts of the Republic of Turkey
+#Q562061	market municipality	municipality in some German-speaking regions; usually has a historical legal right to hold markets and fairs
+#Q15734684	Körperschaft des öffentlichen Rechts	form of corporate personhood in Germany
+#Q1149652	district of India	third-level administrative division in India, below the level of a states or territories, but above the subdivision and subdistrict levels
+Q1418640	local government in Germany	type of governmental entity in Germany
+#Q914262	administrative territorial entity of Sweden	
+#Q27676428	municipality	type of municipality in Quebec; these are municipalities that only have "municipality" in their status
+Q41761295	administrative territorial entity of China	before split into PRC and ROC
+Q50231	administrative territorial entity of the People's Republic of China	class of region in People's Republic of China
+#Q2276925	municipality of Galicia	administrative territorial entity of Galicia, Spain
+#Q3191695	regency of Indonesia	second-level subdivision of Indonesia
+Q115385481	fiat object part	obo ontology term; part of an object demarcated from the remainder of the object by declaration
+#Q17051044	mahalle	type of subdivision in Turkey
+Q27096220	natural geographic entity	natural geographic entities including groups, areas, and regions
+Q1633408	concelho	municipality in Portuguese language countries
+#Q106658	district of Germany	part of the geopolitical division of Germany
+#Q6664406	local government in Pennsylvania	government below the state level in Pennsylvania, United States
+Q2198484	municipal district	administrative entity
+Q6721654	administrative territorial entity of Algeria	
+Q15042137	administrative divisions of the Netherlands	political divisions of the Netherlands
+Q3648563	public body of the Netherlands	type of administrative division in the Netherlands
+Q115385384	astronomical body part	part of an astronomical object
+Q35145263	natural geographic object	geographical object created by natural causes
+#Q13217644	municipality of Portugal	second-level administrative country subdivision of Portugal
+#Q127448	municipality of Sweden	local administrative subdivisions of Sweden
+#Q1059478	town of Japan	administrative division of Japan
+#Q6784672	municipality of Slovakia	municipality in Slovakia
+#Q2039348	municipality of the Netherlands	third-level administrative division in the Netherlands
+#Q3491915	urban-rural municipality	administrative division of Poland
+#Q29414133	community of Cyprus Republic	type of administrative division of Cyprus Republic
+#Q11774097	county of Texas	political subdivision of Texas, United States
+#Q6256	country	distinct territorial body or political entity
+Q5004679	path	small road or street
+Q7688	raion	administrative division in several countries
+#Q515483	baladiyah	type of Arabic administrative division that can be translated as district or municipality
+Q1499928	Gemarkung	cadastral district in German, Swiss and some other European cadastral systems
+#Q45242174	gazetted locality of Victoria	bounded locality in Victoria, Australia registered under section 11 of the Geographic Place Names Act 1998 (Vic)
+#Q2989398	commune of Algeria	administrative division of Algeria
+#Q105626471	subdistrict of India	unit of Indian Census below district
+#Q2775236	community development block in India	rural area earmarked for administration and development in India
+#Q122987743	community development block in West Bengal	class of developmental administrative subunit of West Bengal in India, at a level below a district but above a village
+#Q61763947	municipality of Aragon	municipality of the Autonomous community of Aragon, Spain
+Q61763780	administrative territorial entity of Aragon	
+#Q1349648	municipality of Greece	2nd level of administrative subdivision of Greece
+#Q21682724	municipal district of Finland	district of a municipality or city in Finland
+Q107390	federated state	territorial and constitutional community forming part of a federal union
+#Q3327899	municipality of Ontario	incorporated settled area in Ontario, Canada
+Q643589	department	term for an administrative territorial entity in some countries
+#Q133269612	municipality of Segovia	municipality of the Province of Segovia, Spain
+#Q7830213	township of New Jersey	administrative unit in New Jersey, United States
+Q1077333	administrative divisions of Thailand	administrative divisions of a unitary state in Southeast Asia
+Q183366	territory	area of land under a certain jurisdiction
+Q12766313	geomorphological unit	topographic or bathymetric feature in a particular geographic location (eg. hill, river valley, mountain range, etc.)
+Q271669	landform	a natural or anthropogenic land feature on the solid surface of the Earth or other planetary body; geomorphological unit in the Earth sciences
+#Q509686	province of Peru	second level administrative subdivision of Peru
+#Q66752884	aza	entity of territorial administration
+#Q424857	ōaza	subdivision of a village or town in Japan
+#Q133997481		
+#Q1019982	subdivision of Rome	administrative, urbanistic and historic or toponomastic subdivisions
+#Q16725943	township-level division	fourth level administrative divisions of the People's Republic of China
+Q750277	administrative territorial entity of Latvia	current administrative units of Latvia
+Q5195043	borough	administrative division in various countries
+Q253326	cadastral municipality	Central European type of municipality
+#Q1162835	district of Hungary	second-level administrative subdivision of Hungary
+#Q3624078	sovereign state	state that has the highest authority over a territory
+#Q902814	border city	town or city on a border between larger political areas
+#Q17198545	township of Illinois	civil township subdivision of most Illinois counties
+#Q572975	opština	administrative subdivision in Slavic countries roughly equivalent to a municipality
+Q10374501	administrative territorial entity of Bulgaria	administrative subdivisions in Bulgaria
+Q13226383	facility	place, equipment, or service to support a specific function
+#Q13410428	county of Georgia	subdivision of the state of Georgia, United States
+#Q705296	district of Taiwan	type of administrative division in Taiwan
+Q1761572	barrio	neighborhood or district in Spain and in several Latin American countries
+Q1188782	county-equivalent	U.S. federal government terminology for a non-county jurisdiction similar to a county
+Q41176	building	structure, typically with a roof and walls, standing more or less permanently in one place
+#Q770948	okres	Czech and Slovak designation for an administrative territorial entity
+Q12569864	economic entity	one of the assumptions made in generally accepted accounting principles
+Q1415187	economic agent	actor and decision maker in an economic model
+#Q5341295	educational organization	body with an aim of education
+#Q132759797		
+Q13420330	provider	economic actor that provides goods or services to consumers
+#Q2385804	educational institution	institution that provides education
+Q2169973	service provider	organization that provides organizations with services
+#Q2367508	township of Taiwan	administrative subdivision in Taiwan
+#Q4946305	borough in the United States	administrative division at the local government level in the United States
+#Q123680441	municipality of La Rioja	
+Q7225124	administrative territorial entity of Wisconsin	political and government structures
+#Q15978299	municipality with town privileges in the Czech Republic	municipality in the Czech Republic which has received town privileges
+#Q79696253	subdivision of a neighborhood of Helsinki	
+#Q15210668	lower-tier municipality	type of municipality in Ontario, Canada
+Q47461344	written work	any work expressed in writing, such as inscriptions, manuscripts, documents or maps
+Q14921981	administrative territorial entity of Belarus	political divisions of Belarus
+Q7225125	political subdivison	portion of a country or other region delineated for the purpose of administration
+#Q1906268	municipality of Bulgaria	administrative divisions of Bulgaria
+Q269528	unincorporated area	region of land not governed by own local government
+Q17379815	administrative territorial entity of Missouri	
+#Q18810091	census division of Canada	second-level census geographic unit of Canada
+#Q15127012	town in the United States	administrative division at the local government level in the United States
+Q2311958	canton	type of administrative division of a country
+#Q13410447	county of Kentucky	political subdivision of Kentucky, United States
+Q3491994	subdistrict	low level administrative division of a country
+Q110071045	unit of local government in Illinois	unit of local government in Illinois as designated by Article VII of the Constitution of the State of Illinois
+#Q2043199	district of Belarus	second-level administrative territorial entity of Belarus
+#Q17276937	ward of Madrid	
+#Q10267336	neighborhood of Madrid	one of 131 administrative neighborhoods of Madrid, Spain
+#Q15974307	Einheitsgemeinde of Germany	administrative unit of Germany
+#Q1307779	integrated municipality	type of municipality in Germany, Austria and Switzerland
+#Q61089180	municipal part of the Czech Republic	type of territorial administrative unit in Czechia
+#Q11774149	county of Iowa	subdivision of Iowa, United States
+Q3914	school	institution for the education of students by teachers
+#Q13410520	county of Missouri	administrative territorial entity of Missouri, United States
+#Q123433484	municipality in Alberta	
+Q203323	administrative territorial entity of Ukraine	political divisions of Ukraine
+Q1867183	local government area of Australia	areas governed by the third and lowest tier of government in Australia
+#Q133997300		
+Q685309	former municipality of Switzerland	type of municipality of Switzerland
+#Q20871353	cadastral area in the Czech Republic	a technical unit in the Czech Republic, which consists of a topographically closed set of real estate
+#Q13410444	county of Kansas	subdivision of Kansas, United States
+Q192287	administrative divisions of Russia	common article for both administrative and municipal divisions, and also military, economic and federal districts
+#Q986065	subdistrict	People's Republic of China township-level subdivision
+Q30059	arrondissement	administrative division of certain Francophone countries and the Netherlands
+#Q11086229	densely inhabited district	in Japanese census
+Q12829	comarca	administrative division
+Q47682	administrative territorial entity of New York	administrative divisions of New York State
+Q171308	oblast	first-level administrative division in several countries
+#Q11812346	county of Illinois	administrative subdivision of Illinois, United States
+Q17379818	administrative territorial entity of North Carolina	
+Q28692710	state territory	territory belonging to a state
+#Q17201685	township of Indiana	
+Q15045746	administrative territorial entity of Ghana	divisions of Ghana
+#Q11643682	city planning area	term of city planning in Japan
+#Q13414758	county of North Carolina	subdivision of North Carolina, United States
+#Q11480694	urbanization promotion area	areas where urban areas have already formed and areas where urbanization should be implemented preferentially and in a well-planned manner within approximately the next 10 years
+Q697379	administrative territorial entity of Romania	
+#Q123095923	municipality of Cantabria	municipality of the autonomous community of Cantabria, Spain
+Q19868903	administrative territorial entity of São Paulo State	
+#Q18559008	district of São Paulo	
+#Q1007114	administrative territorial entity of São Paulo City	
+Q3685476	abolished municipality in Italy	former municipality in Italy
+#Q194203	arrondissement of France	territorial subdivision of a department of France
+Q17379821	administrative territorial entity of Nebraska	
+#Q13414361	county of Nebraska	subdivision of Nebraska, United States
+#Q35034452	locality of Berlin	part of a borough of Berlin without own administration
+#Q13415366	county of Tennessee	subdivision of Tennessee, United States
+#Q13410438	county of Indiana	subdivision of Indiana, United States
+#Q6465	department of France	administrative subdivision in France
+Q133250	sequence	ordered list of the same type of elements (finite or infinite)
+#Q13415368	county of Virginia	subdivision of Virginia, United States
+#Q13414759	county of Ohio	subdivision of Ohio, United States
+Q7225123	administrative territorial entity of Virginia	
+#Q386426	natural heritage	elements of biodiversity, including flora and fauna, ecosystems, fossils and geological structures
+Q10594991	nature area	general name for all kinds of areas with striking features when it comes to flora, fauna, geological or landscape conditions, protected and not protected
+Q4683534	administrative territorial entity of Michigan	human settlement in United States of America
+#Q1131296	freguesia of Portugal	third level of administrative subdivision of Portugal
+Q17379829	administrative territorial entity of Minnesota	
+Q3917124	administrative territorial entity of Costa Rica	structure description
+#Q2577184	parish of Latvia	administrative division in Latvia
+Q1806767	departamento	Spanish-language country subdivision term
+Q687121	Volost	historical East Slavic administrative territorial division
+#Q12262532	county of Minnesota	subdivision of Minnesota, United States
+#Q473972	protected area	area which receives protection because of its recognized natural or cultural values
+Q264441	Bezirk	district in Germany, Austria and Switzerland
+#Q1345234	comarca of Spain	administrative, natural, traditional or historic subdivision of provinces or autonomous communities in Spain
+#Q13410496	county of Michigan	subdivision of Michigan, United States
+#Q545769	district of Ghana	administrative division of Ghana
+#Q13410508	county of Mississippi	subdivision of Mississippi, United States
+#Q27676416	city or town	type of local municipality in Quebec (Quebec doesn’t make the difference between city or town)
+Q337060	perceptible physical object	entity that is physically perceptible
+Q20719690	NUTS 2 statistical territorial entity	statistical territorial entity
+Q17361351	administrative territorial entity of Arkansas	
+#Q871419	district of Austria	administrative subdivision of Austria
+Q106458883	state	title used for first-level administrative division in several countries
+Q1485500	tangible good	physical asset which is the subject of trade or could come as an object of trade turnover into consideration
+#Q953822	canton of Costa Rica	political subdivision of Costa Rica
+Q17537576	creative work	artistic creation
+#Q171809	county of England	administrative, geographical and political demarcation of England, United Kingdom
+Q4683555	administrative territorial entity of South Africa	territorial subdivision of South Africa
+Q1155268	politics of South Africa	political system of South Africa
+#Q43263	federal subject of Russia	official constitutional top-level political division of Russia
+#Q104841013	hromada	basic administrative division in Ukraine, similar to a municipality
+Q2695008	administrative territorial entity of Luxembourg	
+Q1798622	governorate	administrative division of a country that is headed by a governor
+Q67770276	historic county	traditional geographical division, in particular in the United Kingdom and Ireland
+#Q18551781	subdistrict	type of subdivision in Tallinn
+Q67376938	historic county of the United Kingdom	traditional geographical division in the United Kingdom
+#Q2911266	borough of New Jersey	type of subdivision of New Jersey in the USA
+#Q1426035	local government area of Victoria	third-tier of government in Victoria, Australia
+Q3976655	administrative territorial entity of Denmark	
+#Q13414760	county of Oklahoma	subdivision of Oklahoma, United States
+#Q204613	regional county municipality	county-like political entities in Quebec, Canada
+#Q11774062	county of Arkansas	political subdivision of Arkansas, United States
+#Q3345345	municipality of Latvia	administrative division in Latvia
+#Q1764608	muhafazah	Arab-language territorial entity term
+#Q15089	province of Italy	administrative district of Italy
+Q843752	political divisions of Bosnia and Herzegovina	political divisions
+#Q2264478	district of Slovakia	administrative unit in Slovakia
+#Q548611	district of the Czech Republic	administrative division of the Czech Republic
+#Q5055981	council of Asturies	Asturias municipality-equivalent subdivision, Spain
+#Q2666845	municipality of South Africa	local government structure in South Africa
+Q42848	data	information arranged for automatic processing
+#Q12178928	county of Wisconsin	type of political division of Wisconsin, United States
+#Q2177636	municipality of Denmark	type of administrative division in Denmark
+Q107435521	record	physical or digital manifestation of recorded information
+Q234460	text	object that can be "read" by reader; result of writing
+Q184754	string	data type representing a finite sequence of encoded characters
+Q173285	digital data	discrete, discontinuous representations of information or works, as contrasted with continuous, or analog signals which behave in a continuous manner, or represent information using a continuous function
+Q111415237	physical public space	physical place for public use
+#Q2706302	municipality of Bosnia and Herzegovina	third-level administrative divisions of Bosnia and Herzegovina
+Q22065637	administrative subdivision of Puerto Rico	
+#Q263639	municipality of Puerto Rico	district of Puerto Rico, each led by a mayor and divided into barrios; governed by the Autonomous Municipalities Act of 1991
+Q28108	political system	system of politics and government
+#Q2919801	municipality of Luxembourg	type of administrative division of Luxembourg
+Q3435941	administrative territorial entity of Croatia	list of historical and current administrative divisions of Croatia
+Q4115671	administrative territorial entity of Morocco	Subdivisions of Morocco
+Q2271985	administrative territorial entity of Bangladesh	Bangladeshi administrative geography
+#Q15663836	local administrative unit in Thailand	
+#Q13414763	county of Pennsylvania	subdivision of Pennsylvania, United States
+Q50202	administrative territorial entity of Vietnam	subdivisions of Vietnam
+#Q13410400	county of Alabama	subdivision of Alabama, United States
+Q100792256	identifying artifact	physical, digital, or notional artifact that carries information used for identification
+#Q85482556	rural district of Bavaria	
+#Q15219655	civil town of Wisconsin	administrative unit of Wisconsin
+#Q12037308	county of South Dakota	type of political division of South Dakota, United States
+#Q1995480	minor civil division	governmental divisions of U.S. counties, such as civil townships
+Q853614	identifier	name that identifies either a unique object or a unique class of objects
+#Q50198	province of Thailand	1st level administrative subdivisions of Thailand
+#Q2755753	area of London	district of London, United Kingdom
+#Q21011129	urban zone of Rome	
+#Q13410403	county of Colorado	subdivision of Colorado, United States
+Q19603939	building component	one of the elements that make up a building
+#Q13410524	parish of Louisiana	county-equivalent subdivision of Louisiana, United States
+Q1310239	component	self-contained constituent part of a larger technical entity such as an assembly of elements
+#Q777120	borough of Pennsylvania	type of municipality in the U.S. state of Pennsylvania
+#Q13410422	county of Florida	subdivision of Florida, United States
+Q88392887	part of a work	part that a work consists of (use a more specific object if possible)
+Q55412936	design element	fundamental observable component of a visual design or work of art
+#Q15715406	neighbourhood of Helsinki	one of 59 in the Finnish capital
+Q3955017	intermediate good	good used as input by a process of production
+Q3177944	administrative territorial entity of Helsinki	neighbourhoods, districts, major districts and postal code areas
+Q468756	shore	fringe of land at the edge of a large body of water
+Q391414	architectural element	forms primarily as components of architecture
+#Q2740635	Stadtbezirk	administrative units of German cities
+#Q15830667	quarter of Hamburg	104 quarters of Hamburg within 7 boroughs
+#Q2333944	statistical city district	
+Q1851368	waterfront	dockland district, or area alongside a body of water
+Q3840711	riverfront	spaces, land, or part of an urban area on the edge of a river
+#Q3752524	gmina's auxiliary unit	local self-government community of inhabitants of a part of the municipality in Poland
+Q174782	square	open public spaces in cities or towns, usually rectilinear, surrounded by buildings, and often located at the junction of two or more thoroughfares
+#Q152732	district of Bangladesh	administrative subdivision (also called zila) of the South Asian country below the division level but above the subdistrict (upazila) level
+Q18663566	dissolved municipality of Japan	former municipality in Japan
+Q5571369	quarter of a city in Italy	territorial subdivision of certain Italian towns
+#Q1434401	dzielnica	administrative subdivision or quarter of a city or town in Poland
+#Q13414757	county of New York	subdivision of New York, United States
+Q17343829	unincorporated community in the United States	settlement in the United States without its own local government, generally governed at county (or borough, parish) level, or as part of a municipal corporation
+Q3356100	administrative territorial entity of Slovenia	
+#Q328584	municipality of Slovenia	administrative territorial entity of Slovenia
+Q19658107	neighborhood of Brazil	administrative subdivision of municipalities in Brazil
+Q16837104	bairro	community or region within a Portuguese-speaking city or municipality
+#Q1267632	raion of Ukraine	type of administrative territorial entity in Ukraine
+Q1839674	lands inhabited by indigenous peoples	geographic territories occupied primarily by native or tribal peoples generally, whether formally recognized or not
+Q6544379	lieutenancy area	separate areas of the United Kingdom appointed a lord-lieutenant
+Q21074401	administrative territorial entity of California	
+#Q13212489	county of California	subdivision of California, United States
+Q3024240	historical country	country, state or territory that once existed
+#Q240601	province of Algeria	type of administrative entity
+#Q13414358	county of Montana	subdivision of Montana, United States
+#Q1363145	municipality of Lithuania	second-level administrative division
+Q772123	administrative territorial entity of Lithuania	administrative territorial entity of a single country
+#Q3518810	unorganized area of Canada	geographic region in Canada not part of a municipality or Indian reserve
+#Q109429530	provincial-level subdivision of Vietnam	top-level administrative divisions of Vietnam
+#Q17376095	cadastral municipality of Austria	
+#Q131822041	parish of New Brunswick	geographic subdivision of New Brunswick, Canada
+#Q97312698	city district in Hannover, Germany	
+#Q81066200	unorganized area in Quebec	territory out from a municipality
+Q15063160	administrative territorial entity of New Zealand	
+#Q55774719	township municipality in Ontario	type of municipality in Ontario
+Q17379817	administrative territorial entity of North Dakota	
+#Q12178655	county of North Dakota	type of administrative division in North Dakota, United States
+Q15126920	administrative territorial entity of El Salvador	
+#Q9316670	prefecture-level division	second level administrative divisions of the People's Republic of China
+Q3042547	administrative territorial entity of Argentina	
+Q1814009	administrative territorial entity of Albania	territorial subdivision of Albania
+Q1134686	frazione	territorial subdivision of a comune in Italy
+Q860290	province of Japan	former administrative units of Japan
+#Q3976662	subdivision of Palermo	historic and administrative subdivision of the city of Palermo, Italy
+Q107425	landscape	visible features of an area of land
+#Q13415370	county of West Virginia	subdivision of West Virginia, United States
+#Q9035798	township of Pennsylvania	type of municipality in the U.S. state of Pennsylvania
+#Q748149	prefecture-level city	city or municipality of a Chinese province
+#Q1500352	local municipality	third-level local government structure in South Africa
+#Q24746	province of the Philippines	administrative division of the Philippines
+Q4632675	dwelling place	type of human settlement
+Q112865	administrative territorial entity of Mexico	territorial subdivision of Mexico
+Q20826981	Rural community (local government)	political community in rural areas
+#Q7841907	municipality with authorized municipal office	
+Q175185	rural area	geographic area that is located outside towns and cities
+Q47248051	Indigenous Area	administrative divisions in Taiwan with significant populations of indigenous peoples
+Q7631083	administrative territorial entity of Uzbekistan	
+Q2824644	administrative territorial entity of Colombia	
+Q1497375	architectural ensemble	group of multiple related objects, such as buildings
+#Q1080224	state electoral district	electoral district of the Australian states and territories
+#Q61878		administrative division of the Philippines
+#Q13414765	county of South Carolina	subdivision of South Carolina, United States
+#Q768307	municipality of Albania	administrative division of Albania
+#Q4005760	first-level unit of Palermo	administrative subdivision of Palermo, Italy
+#Q683738	Subdivisions of Wales	subdivisions of Wales in the UK
+#Q5356185	electoral district of South Australia	electorate for the South Australian House of Assembly
+#Q2824648	province of Vietnam	type of administrative division in Vietnam
+Q703941	private road	road owned and maintained by a private individual, organization, or company
+#Q35657	U.S. state	constituent political entity of the United States of America
+#Q106517174	Option municipality	
+#Q2881272	district of New Zealand	district administered by a territorial authority in New Zealand
+Q628179	trail	path with a rough beaten or dirt/stone surface used for travel
+#Q180673	ceremonial county of England	collective name for areas, in England, to which a Lord Lieutenant is appointed
+#Q475061	amphoe	administrative subdivision of Thailand
+#Q162620	province of Spain	second-level type of administrative division of Spain
+#Q100341898	market municipality of Germany	municipality with market privileges in Germany (may e.g. legally prepend "Markt" to its name)
+Q159810	economy	area of the production, distribution and trade, as well as consumption of goods and services by different agents
+Q37654	market	mechanisms whereby supply and demand confront each other and deals are made, involving places, processes and institutions in which exchanges occur (for physical venues, use Q132510 or Q330284)
+#Q13410433	county of Idaho	subdivision of Idaho, United States
+#Q3556889	municipality of El Salvador	administrative entity in El Salvador
+#Q1852859	cadastral populated place in the Netherlands	officially designated place ("woonplaats") (city/town/village) in the Netherlands
+#Q1776764	county	first level administrative division of Romania
+#Q937876	comarca of Catalonia	groups of municipalities in Catalonia, Spain
+Q28599747	education agency	government agency with an education portfolio
+Q6663997	local education agency	local body with authority over education or schools (United States). In the UK, use Q6664350
+Q398141	school district	special-purpose district for local public primary and secondary schools
+Q183039	form of state	form which a state takes, such as monarchy or republic
+#Q57058	municipality of Croatia	second-level administrative subdivision in Croatia
+#Q17601336	district of the United Kingdom	type of administrative territorial entity of the United Kingdom
+#Q5030865	provincial/territorial electoral district in Canada	
+#Q2973938	electoral district of Canada	federal or provincial electoral district in Canada
+#Q2973931	provincial electoral district of Quebec	
+#Q735428	town of China	People's Republic of China township-level subdivision
+#Q14762205	municipal district of Alberta	county of Alberta, Canada
+#Q3575964	zone of Rome	subdivisions of the Rome metropolitan area
+#Q17301072	district municipality of Lithuania	administrative territorial entity of Lithuania
+Q515716	prefecture	administrative jurisdiction or subdivision in any of various countries
+#Q659103	commune of Romania	lowest level of administrative division in Romania
+#Q349084	district of England	level of subnational division of England used for the purposes of local government
+Q3502438	administrative territorial entity of Guinea	geographical divisions of Guinea
+Q110211119	former municipality of Latvia	abolished first-level administrative unit in Latvia
+#Q54935504	city of Switzerland	city classified by Swiss government
+#Q47481352	Lok Sabha constituency	electoral district for a seat in the lower house of the Parliament of India
+Q467970	permanent establishment	fixed place of business
+#Q13415369	county of Washington	subdivision of the state of Washington, United States of America
+#Q5811416	district in Spain	
+Q1138494	historic county of England	geographical designations for areas of England, based on historical traditions
+Q5589178	regime	form of government or the set of rules, cultural or social norms, etc. that regulate the operation of a government or institution and its interactions with society
+#Q662914	district in Switzerland	intermediate level of local government in some cantons of Switzerland, between municipality and canton. Depending on the canton, there may be one or several such layers with varying functions and names.
+#Q50337	prefecture of Japan	first level subdivision of Japan
+#Q20296613	protected area of Germany	protected areas defined by federal nature protection law of Germany
+Q159334	secondary school	organization where secondary education is provided
+#Q17268368	municipality of the Federation of Bosnia and Herzegovina	
+#Q113414331	county-level division	third level administrative divisions of the People's Republic of China
+Q18663579	former municipality of Norway	former administrative division of Norway
+#Q835714	oblast of Russia	first-level administrative division of Russia
+Q12731	dead end street	dead-end street with only one inlet/outlet
+#Q15629582	province of Morocco	administrative territorial entity of Morocco
+Q15273785	Belgian municipality with the title of city	honorary title for a municipality in Belgium that is awarded by Royal Decree
+#Q702842	municipal arrondissement	territorial subdivision of some French communes
+Q542797	administrative territorial entity of Moldova	
+#Q4174776	village of Japan	local administrative unit in Japan
+Q1365122	administrative territorial entity of Chile	
+Q149566	middle school	school in which children attend between primary school and upper secondary school
+Q4683538	administrative territorial entity of Niger	subdivision of Niger
+Q3330995	administrative territorial entity of Nigeria	federation of thirty-six states and one Federal Capital Territory, divided into 774 Local Government Areas
+#Q2616791	urban municipality	administrative division of Poland
+#Q465842	state of Nigeria	federally recognized polity in the Federal Republic of Nigeria
+Q135103495	former Belgian municipality	
+#Q28480345	district of Vantaa	city district of Vantaa, Finland
+Q28081313	municipality section	type of administrative division in Belgium and the Netherlands
+#Q13414761	county of Oregon	subdivision of Oregon, United States
+#Q13218690	town in Hungary	town or city with status 'város'
+Q2785216	municipality section	former municipality in Belgium
+#Q20738676	rural district of Baden-Württemberg	type of district
+#Q3927245	quarter of Brescia	33 quarters
+#Q2991484	county of Canada	
+#Q13997861	partido of Buenos Aires Province	administrative territorial entity of Buenos Aires Province, Argentina
+#Q6063891	partido	administrative subdivision in various countries
+Q7270	republic	form of government where the head of state is elected
+#Q85332736	district of Lower Saxony	
+#Q13414755	county of New Mexico	subdivision of New Mexico, United States
+#Q2631599	district of Uzbekistan	second-level administrative unit in Uzbekistan
+#Q106071004	town of New York	form of local government in the state of New York, United States
+Q2726038	administrative divisions of Iran	administrative subdivisions of Iran
+#Q766277	comarque of the Valencian Community	first level of territorial demarcation formed by a group of municipalities in the Valencian Community
+#Q12063697	neighborhood of Washington, D.C.	administrative unit of Washington, D.C.
+#Q3389680	census place	U.S. Census bordered area of settlement
+#Q1394653	prefecture of Guinea	
+#Q104157	city of the Philippines	administrative division in the Philippines
+#Q47320699	parish of Nicosia Municipality	
+#Q605291	municipality of Niger	
+#Q28538792		
+Q17379825	administrative territorial entity of Utah	
+Q13634881	passageway	passageway between two streets or buildings
+#Q13415365	county of Utah	subdivision of Utah, United States
+#Q1344695	province of Iran	national subdivision
+#Q119608727	province-level division	first level administrative divisions of the People's Republic of China
+Q17279557	administrative territorial entity of the Dominican Republic	
+Q6664400	local government in New Jersey	Municipal and county governmenta in the US state
+Q3249551	process	series of events which occur over an extended period of time
+Q1914636	activity	series of actions done by an agent which results in an external change of state
+Q1763527	constituent state	state that makes up a part of a larger political entity
+Q1390618	statistical district	
+#Q498162	census-designated place in the United States	statistical concentration of population defined by the United States Census Bureau
+Q21146257	type	kind or variety of something
+#Q913337	province of the Dominican Republic	first-level administrative divisions of the Dominican Republic
+#Q46831	mountain range	geographic area containing several geologically related mountains
+Q115820013	unit of speech	a speech consisting of one uninterrupted vowel sound which may or may not be flanked by one or more consonant sounds; uttered with a single impulse of the voice
+Q115786086	form	any meaningful unit of speech such as word, phrase, sentence, morpheme or affix
+Q115372263	word or phrase	sequence of one or more words
+Q13582281	circoscrizione di decentramento comunale in Italy	administrative territorial entity of a larger city in Italy
+Q3677901		
+Q2944660	lexical item	basic unit of a language’s lexicon
+Q789016	content word	word that name objects of reality and their qualities, e.g. living things, family members, natural phenomena, common actions, characteristics; mostly nouns (“dog”), lexical verbs (“eat”), adjectives (“happy”), and adverbs (“happily“)
+Q651943	signifier	observable aspects of a sign, in semiotics
+Q503992	nominal	word class consisting of pronouns, nouns, adjectives and numerals
+#Q215655	department of Colombia	department, group of municipalities, in Colombia
+Q82799	name	word or phrase used for identification
+Q8171	word	smallest linguistic element that will be said in isolation with semantic or pragmatic content
+Q125598382	independent continuant type	
+Q125598210	immaterial entity type	
+Q117023459	type of institution	Wikidata metaclass
+Q104098715	territorial entity type	
+Q104086571	first-order class	class whose instances are individuals and not classes
+Q96251598	type of object	Wikidata metaclass of object, which could be concrete or abstract
+Q23959932	fixed-order class	class whose instances are all either individuals or same-fixed-order classes
+Q17197366	type of organization	type in a typology; form of social organization defined by the structure of the relationship between its members, or between other organizations
+Q15617994	administrative territorial entity type	type of administrative divisions, usually used in several countries
+#Q3927261	quarter of Naples	subdivision of Naples
+#Q1077097	tambon	local governmental unit in Thailand below district
+Q1414991	area	country subdivision
+Q2133296	space	area within an architectural structure or vehicle with available space
+Q470540	seat	location of a corporation organisation or local goverment's headquarters for legal purposes
+Q461231	administrative territorial entity of Scotland	present or former administrative subdivision of Scotland
+Q15645212	administrative territorial entity of Ecuador	
+Q15044339	administrative territorial entity of Egypt	three-layer hierarchy below the governorate levels
+#Q1155688	thesaban	local government type in Thailand
+#Q131541	states and union territories of India	Indian national administrative subdivisions
+#Q12479773	first-level administrative country subdivision in Indonesia	first-level administrative division in Indonesia, provinsi (province), special region (daerah khusus)
+#Q1388464	regional municipality in Canada	Canadian form of government analogous to county
+#Q5098	province of Indonesia	first-level subdivision of Indonesia
+#Q14762300	single-tier municipality	type of municipality in Ontario, Canada
+Q1160920	unitary authority	type of local government body that covers two levels of government
+#Q20738811	rural district of North Rhine-Westphalia	
+Q20528428	federative entity of Mexico	
+#Q860582	community area in Chicago	statistical subdivisions of Chicago
+#Q204910	governorate of Egypt	top tier of the country's jurisdiction hierarchy
+#Q85796467	regional district in British Columbia	administrative subdivision in British Columbia, Canada
+Q54935786	medium-sized district town	type of town or city in Germany which belongs to a district (Kreis) and has more 20,000 (NRW) or 25,000 (Brandenburg) inhabitants
+Q18635222	location of an event	place (region, country, city, administrative subdivision, etc.) where event was or will be
+#Q15149663	state of Mexico	federative entity of Mexico
+#Q3502496	administrative territorial entity of Senegal	
+#Q1074955	quartiere of Rome	subdivision of Rome
+#Q209824	oblast of Bulgaria	first-level administrative subdivisions of Bulgaria
+Q110415260	unitary authority area	local government area governed by a unitary authority
+Q98929991	place	small area known by a geographical name
+#Q27554593	dzielnica of Lublin	administrative subdivision or quarter of the city of Lublin in Poland
+Q15620181	administrative territorial entity of Estonia	
+#Q15068450	district of Moldova	
+#Q7553685	municipal district of Bulgaria	
+#Q7245071	principal area	sub-national area established for control by a principal council in local government in England and Wales
+#Q2064521	constituency in the United Kingdom	various types of electoral area in the UK
+#Q104717505		
+#Q55687066	local government area of Tasmania	third-tier of government in Tasmania, Australia
+Q7631058	administrative territorial entity of Malawi	
+#Q1153408	province of Chile	second-level administrative division of Chile
+Q628858	workplace	physical location where someone works
+#Q253270	borough of Munich	
+Q9842	primary school	school in which children receive primary or elementary education from the age of about five to twelve
+#Q124364380	territorial community of Morocco	concept in the administrative system of Morocco
+#Q17110751	municipality in Saskatchewan	
+#Q1852752	community in Saskatchewan	
+Q960648	point of interest	specific location that someone may find useful or interesting
+#Q23058	canton of Switzerland	administrative divisions of the Swiss Confederation
+Q17496379	city district in Austria	administrative units of Austrian cities
+Q1306755	administrative centre	seat of regional administration or local government, or a county town, or the place where the central administration of a commune is located
+#Q1058387	district of Malawi	administrative division of 2nd level
+#Q261023	district of Vienna	the 23 districts of the Austrian capital city of Vienna
+#Q5328061	special local public entity	entity as defined in Article 1-3 of Local Autonomy Act of Japan
+#Q5327704	special ward of Japan	administrative division of Japan
+#Q1350181	shire of Scotland	historic administrative and geographical division of Scotland
+Q570116	tourist attraction	place of interest where tourists visit
+#Q29925520		
+#Q21451942	administrative territorial entity of Lower Saxony	
+#Q20725872	Eastern Catholic eparchy	
+Q20076236	state system	
+#Q13218357	city of California	type of political division of California
+#Q12443800	state of India	Indian national administrative subdivision
+#Q1143175	administrative division of Iceland	
+Q353344	countship	historical administrative division
+#Q285181	eparchy	administrative territorial entity of Greek-Catholic, Orthodox and Eastern Churches
+#Q137773	ward of Japan	subdivision of cities designated by government ordinance in Japan
+#Q84669937	commune of New Caledonia	
+Q63341786	set of physical objects	group of physical objects, sometimes matching, intended to be used or seen together
+#Q5549724	administrative territorial entity of Cuba	
+Q1497364	building complex	set of related buildings
+#Q719987	province of Ecuador	Ecuador's administrative division
+#Q546080	administrative territorial entity of New Caledonia	
+#Q84823091	region of Ukraine	
+#Q49271840	Village-level division of Republic of China	Villages in Taiwan
+#Q7930614	village	small settlements and a 4th level administrative subdivisions of Taiwan and historical Chinese states, now divided between urban li and rural cun
+#Q3032114	district of Madrid	21 administrative units of Madrid
+#Q1065118	district of China	administrative division of the People's Republic of China
+Q861184	department of Peru	first level administrative subdivision of Peru
+#Q707813	Hanseatic city	city in the Hanseatic League
+#Q48336	province of Turkey	first-level administrative division of Turkey
+#Q104782082	territory outside RCM	administrative territorial designation in Quebec
+#Q85493040	district of Rhineland-Palatinate	type of subdivision of Rhineland-Palatinate, Germany
+#Q3348196	oblast of Ukraine	first level administrative division of Ukraine
+#Q57315116	municipality of the Republika Srpska	
+#Q27676524	parish municipality	type of local municipality in Quebec
+#Q19849064	administrative territorial entity of Republika Srpska	
+#Q13415371	county of Wyoming	subdivision of Wyoming, United States
+#Q11183787	Ortschaft	subdivision of a municipality in Germany, Austria and Switzerland
+#Q6644778	village in Saskatchewan	Wikimedia list article
+#Q884030	administrative territorial entity of Venezuela	
+#Q485258	federative unit of Brazil	administrative entity of Brazil
+#Q7897276	unparished area	administrative territorial entity of England
+#Q1229454	rione of Rome	traditional administrative division of the city of Rome
+##Q618299	settlement	official unit of settlement distribution in Estonia
+#Q192299	county of Norway	administrative regions that form the primary first-level subdivisions of Norway
+#Q36784	region of France	France top-level territorial subdivision (1956-)
+#Q27448	department of Guatemala	departments of Guatemala
+#Q62008894	shipping forecast area	
+#Q5468163	forecast region	geographic region used in weather forecasting
+#Q1185892	geological massif	
+#Q1061151	massif	section of a planet's crust that is demarcated by faults or flexures
+#Q751708	village in the United States	administrative division at the local government level in the United States
+Q190429	depression	landform sunken or depressed below the surrounding area
+#Q50201	administrative territorial entity of Cambodia	аdministrative divisions of Cambodia
+Q111931734	effect	exercising influence over an entity
+#Q17205621	township of Iowa	subdivision of Iowa, United States
+#Q16155707	městys	status of certain municipalities in Czechia, corresponding to the former market towns
+#Q1006876	borough in the United Kingdom	granted by royal charter to local government districts in England, Wales and Northern Ireland
+#Q501094	state of Venezuela	first-level administrative division in Venezuela
+Q52948	interaction	kind of action that occurs as two or more objects have an effect upon one another
+Q35825432	converter	entity that converts, modifies, or transforms, producing an change of state, observable on the entity itself or on other objects
+Q12774177	means	means by which a function is performed
+#Q9258947	fjard	glacially formed, broad, shallow inlet
+#Q7252589	province of Cambodia	first-level administrative division of Cambodia
+#Q3356092	administrative territorial entity of Ireland	
+#Q3327874	rural municipality of Canada	type of municipality in Saskatchewan, Manitoba and Prince Edward Island, Canada
+#Q2991489	county palatine	territory or jurisdiction of a count palatine. historical country subdivision, the ruler of which was granted an unusual degree of autonomy
+#Q2421276	glacial landform	landforms created by the action of glaciers
+#Q13218391	charter city	type of city in California, USA
+#Q5639312	voivodeship	administrative division
+#Q5154611	community	administrative division found in Belgium, Canada, Iceland, Wales...
+#Q2630741	community	civil parish type low tier of local government in Wales
+#Q691899	kraj	first-level administrative division in various countries
+#Q604886	charter city of the United States	form of legal municipal structure
+##Q331130	governorate of Yemen	first-level administrative division of Yemen
+#Q156772	administrative divisions of Afghanistan	
+#Q115740682	municipio	administrative divisions of Italy
+#Q28328984	village in Armenia	
+Q13058055	administrative territorial entity of Armenia	
+#Q3685430	municipality of Armenia	
+Q3645512	administrative territorial entity of Mongolia	
+#Q3187075	aimag	administrative division used in Mongolia and China
+#Q2555896	municipality of Colombia	decentralized subdivisions of the Republic of Colombia
+#Q51049922	village	type of settlement in Estonia
+#Q13410464	county of Maryland	top-level administrative subdivision of the State of Maryland, United States
+#Q10374547	administrative territorial entity of Paraguay	administrative territorial
+#Q762882	subregion of Finland	statistical subdivision in Finland
+#Q244339	administrative territorial entity of Georgia	human settlement
+#Q179872	county of Ireland	administrative division of Ireland, historically 32 in number
+#Q44753	province of Argentina	top level administrative division of Argentina
+#Q27971968	constituency of the House of Commons	constituency for the British House of Commons (post-1801)
+Q6738411	Winner-take-all system	electoral system where the winner takes all seats in a legislature or electoral district, denying representation to any political minorities
+Q1200957	tourist destination	place attracting many tourists
+Q1052894	single-member district	electoral district with one representative in a legislature
+Q182985	electoral system	method by which voters make a choice between options
+#Q50399	province of Mongolia	first level administrative division of Mongolia
+Q15140073	subdistrict administrative organization	local administration type in Thailand
+Q12131650	location of burial	place where a particular dead person is buried (cemetery, burial chamber, sea, ...) as a detail in that person's life; even about a pet animal
+#Q3976643	administrative territorial entity of Rwanda	
+#Q955655	municipality of Iceland	second-level administrative subdivision of Iceland
+#Q851830	region of Côte d'Ivoire	administrative territorial entity of Côte d'Ivoire
+Q317548	resort town	town where tourism or vacationing is a primary component of the local culture and economy
+Q39614	cemetery	place of burial
+#Q105389481	Greek-Catholic eparchy	administrative territorial entity of Greek-Catholic Churches
+#Q61980413	rural district of Hesse	
+Q21950738	exterior space	space outside a building
+#Q15979307	principal area of Wales	county or county borough of Wales administered by a principal council
+Q15620020	administrative territorial entity of Uruguay	
+#Q13414754	county of New Jersey	subdivision of New Jersey, United States
+Q11081619	land	solid surface of Earth that is not permanently covered by water
+Q5532181	General Service Area	administrative division in Nova Scotia
+#Q4946461	spa town	specialized resort town situated around a mineral spa
+#Q1952852	municipality of Mexico	municipio: Mexican administrative country subdivisions
+Q1107656	garden	planned space set aside for the display, cultivation, and enjoyment of plants
+#Q200547	county of Sweden	administrative subdivisions of Sweden
+#Q56059	department of Uruguay	administrative territorial entity of Uruguay
+#Q8561193	district of Valencia	administrative unit of Valencia, Spain

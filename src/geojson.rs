@@ -13,9 +13,9 @@ pub(crate) fn generate(
     statements: &mut Statements,
     banned_generic_categories: &HashSet<&'static str>,
 ) -> Result<(), Box<dyn Error>> {
-    // Get top 200 categories, and fetch their name
-    let top200 = &mut statements.top_200_categories_by_edges;
-    let rows = top200.query_map([], |row| row.get(0))?;
+    // Get top N categories, and fetch their name
+    let top = &mut statements.top_categories_by_edges;
+    let rows = top.query_map([], |row| row.get(0))?;
     let mut categories = HashMap::new();
     for x in rows {
         let id: String = x?;
