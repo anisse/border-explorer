@@ -63,6 +63,7 @@ pub(crate) fn create_tables(
         (),
     )?;
     conn.execute("CREATE TABLE banned_natures (id INTEGER NOT NULL);", ())?;
+    conn.execute("CREATE INDEX subclass_parent ON subclass(parent);", ())?;
     conn.execute(
         ("INSERT INTO banned_natures VALUES ".to_string()
             + &banned_categories
