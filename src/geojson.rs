@@ -11,20 +11,20 @@ use serde::{Serialize, Serializer};
 
 pub(crate) fn generate(
     statements: &mut Statements,
-    banned_generic_categories: &HashSet<&'static str>,
+    banned_generic_categories: &HashSet<u64>,
 ) -> Result<(), Box<dyn Error>> {
     // Get top N categories, and fetch their name
     let top = &mut statements.top_categories_by_edges;
     let rows = top.query_map([], |row| row.get(0))?;
     let mut categories = HashMap::new();
     for x in rows {
-        let id: String = x?;
-        if !banned_generic_categories.contains(&id.as_str()) {
+        let id: u64 = x?;
+        if !banned_generic_categories.contains(&id) {
             // Make sure we have the description of this category.
             let labels = fetch_missing_entity_name(
                 &mut statements.select_entity,
                 &mut statements.insert_entity,
-                &id,
+                id,
             )?;
             categories.insert(id, labels);
         }
@@ -52,7 +52,7 @@ pub(crate) fn generate(
 fn fetch_missing_entity_name<'st>(
     select_entity: &mut rusqlite::Statement<'st>,
     insert_entity: &mut rusqlite::Statement<'st>,
-    id: &str,
+    id: u64,
 ) -> Result<HashMap<&'static str, String>, Box<dyn Error>> {
     match select_entity.query_one((id,), |row| Ok((row.get(0), row.get(1)))) {
         Err(rusqlite::Error::QueryReturnedNoRows) => {}
@@ -69,7 +69,7 @@ fn fetch_missing_entity_name<'st>(
         .cookie_store(true)
         .build()?
         .get(format!(
-            "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/{id}/labels"
+            "https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q{id}/labels"
         ))
         .send()?
         .bytes()?;

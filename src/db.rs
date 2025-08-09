@@ -13,11 +13,11 @@ use std::error::Error;
 
 pub(crate) fn create_tables(
     conn: &mut rusqlite::Connection,
-    banned_categories: &HashSet<&'static str>,
+    banned_categories: &HashSet<u64>,
 ) -> Result<(), Box<dyn Error>> {
     conn.execute(
         "CREATE TABLE entities (
-            id TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY,
             name_en TEXT,
             name_fr TEXT
         );",
@@ -25,7 +25,7 @@ pub(crate) fn create_tables(
     )?;
     conn.execute(
         "CREATE TABLE positions (
-            id TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY,
             lat TEXT,
             lon TEXT,
             FOREIGN KEY(id) REFERENCES entities(id)
@@ -34,8 +34,8 @@ pub(crate) fn create_tables(
     )?;
     conn.execute(
         "CREATE TABLE natures (
-            id TEXT,
-            nat TEXT,
+            id INTEGER,
+            nat INTEGER,
             FOREIGN KEY(id) REFERENCES entities(id)
         );
         ",
@@ -44,8 +44,8 @@ pub(crate) fn create_tables(
     conn.execute("CREATE INDEX natures_id_nat ON natures(id, nat);", ())?;
     conn.execute(
         "CREATE TABLE edges (
-            a TEXT NOT NULL,
-            b TEXT NOT NULL,
+            a INTEGER NOT NULL,
+            b INTEGER NOT NULL,
             UNIQUE(a, b)
         );",
         (),
@@ -54,8 +54,8 @@ pub(crate) fn create_tables(
     conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
     conn.execute(
         "CREATE TABLE subclass (
-            id TEXT NOT NULL,
-            parent TEXT NOT NULL,
+            id INTEGER NOT NULL,
+            parent INTEGER NOT NULL,
             UNIQUE(id, parent)
             FOREIGN KEY(id) REFERENCES entities(id)
         );
@@ -164,7 +164,7 @@ pub(crate) fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
     let label_fr = label_or_empty(&item.labels, "fr");
 
     st.insert_entity
-        .execute((item.id, label_en, label_fr))
+        .execute((int_id(item.id), label_en, label_fr))
         .expect("Failed base insert");
 }
 pub(crate) fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
@@ -206,21 +206,21 @@ pub(crate) fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
         .filter_map(|pos| {
             //dbg!(&pos.mainsnak);
             if let Snak::Item { ref value } = pos.mainsnak {
-                Some(value.id)
+                Some(int_id(value.id))
             } else {
                 None // Ignore elements explicitly without any item to share border with, like Q71356
             }
         });
     st.insert_position
-        .execute((item.id, position.latitude, position.longitude))
+        .execute((int_id(item.id), position.latitude, position.longitude))
         .expect("Failed insert");
     natures.for_each(|nat| {
         st.insert_nature
-            .execute((item.id, nat))
+            .execute((int_id(item.id), nat))
             .expect("Failed nature insert");
     });
     connections.for_each(|edge| {
-        let mut items = [item.id, edge];
+        let mut items = [int_id(item.id), edge];
         items.sort();
         st.insert_edge
             .execute((items[0], items[1]))
@@ -245,7 +245,7 @@ pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
         .filter(|claim| claim_still_valid(claim))
         .filter_map(|pos| {
             if let Snak::Item { ref value } = pos.mainsnak {
-                Some((item.id, value.id))
+                Some((int_id(item.id), int_id(value.id)))
             } else {
                 None // Ignore elements without subclass id
             }
@@ -255,4 +255,14 @@ pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
                 .execute((id, parent_id))
                 .expect("Failed subclass insert");
         });
+}
+
+pub(crate) fn int_id(id: &str) -> u64 {
+    if id.bytes().next() != Some(b'Q') {
+        panic!("Not a Q-entity: {id}");
+    }
+    let integer_part = &id[1..];
+    integer_part
+        .parse()
+        .unwrap_or_else(|e| panic!("Not an int '{integer_part}': {e}"))
 }

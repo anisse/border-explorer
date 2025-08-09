@@ -9,6 +9,7 @@ use std::io::{BufRead, BufReader};
 use std::process;
 
 use chrono::DateTime;
+use db::int_id;
 use memchr::memmem;
 use serde::Deserialize;
 
@@ -60,7 +61,7 @@ struct Config {
     filtered_natures: Vec<String>,
     intermediate_db_filename: String,
 
-    banned_generic_categories: HashSet<&'static str>,
+    banned_generic_categories: HashSet<u64>,
 }
 pub(crate) const NATURE_CLAIM: &str = "P31";
 pub(crate) const POSITION_CLAIM: &str = "P625";
@@ -85,12 +86,13 @@ impl Default for Config {
         }
     }
 }
-fn parse_banned_categories(s: &'static str) -> HashSet<&'static str> {
+fn parse_banned_categories(s: &'static str) -> HashSet<u64> {
     s.lines()
         // Ignore comments
         .filter(|l| l.bytes().next().unwrap_or(b'#') != b'#')
         // Keep only first column of Tab-Separated-Values
         .filter_map(|l| l.split("\t").next())
+        .map(int_id)
         .collect()
 }
 fn fill_db_from_dump(
@@ -289,9 +291,9 @@ fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime
     })
 }
 
-pub(crate) fn claim_and_roles<'a>(claim: &'a Claim) -> impl Iterator<Item = &'a str> {
+pub(crate) fn claim_and_roles(claim: &Claim) -> impl Iterator<Item = u64> {
     let main = if let Snak::Item { value } = &claim.mainsnak {
-        value.id
+        int_id(value.id)
     } else {
         panic!("No nature id")
     };
@@ -304,7 +306,7 @@ pub(crate) fn claim_and_roles<'a>(claim: &'a Claim) -> impl Iterator<Item = &'a 
                 .flat_map(|roles| roles.iter())
                 .filter_map(|role| {
                     if let Snak::Item { value } = role {
-                        Some(value.id)
+                        Some(int_id(value.id))
                     } else {
                         None
                     }
