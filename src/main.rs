@@ -29,7 +29,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             .collect();
     }
     let mut conn = rusqlite::Connection::open(&config.intermediate_db_filename)?;
-    conn.execute("PRAGMA synchronous = off;", ())?; // YOLO, we need speed
+    /* YOLO, we need speed, and to save disk space */
+    conn.execute("PRAGMA synchronous = off;", ())?;
+    let _: () = conn.query_row_and_then("PRAGMA journal_mode = memory;", [], |row| {
+        let journal_mode: String = row.get(0)?;
+        assert_eq!(journal_mode, "memory");
+        Ok::<(), Box<dyn Error>>(())
+    })?;
 
     /* If no dump filename is passed, we consider that we already have an sqlite file to work with */
     if config.wikidata_dump_filename.is_some() {
