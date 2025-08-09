@@ -28,7 +28,7 @@ pub(crate) fn create_tables(
             id TEXT PRIMARY KEY,
             lat TEXT,
             lon TEXT,
-            FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY(id) REFERENCES entities(id)
         );",
         (),
     )?;
@@ -36,7 +36,7 @@ pub(crate) fn create_tables(
         "CREATE TABLE natures (
             id TEXT,
             nat TEXT,
-            FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY(id) REFERENCES entities(id)
         );
         ",
         (),
@@ -57,6 +57,7 @@ pub(crate) fn create_tables(
             id TEXT NOT NULL,
             parent TEXT NOT NULL,
             UNIQUE(id, parent)
+            FOREIGN KEY(id) REFERENCES entities(id)
         );
         ",
         (),
