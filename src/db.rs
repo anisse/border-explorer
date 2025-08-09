@@ -17,7 +17,7 @@ pub(crate) fn create_tables(
 ) -> Result<(), Box<dyn Error>> {
     conn.execute(
         "CREATE TABLE entities (
-            id TEXT primary key,
+            id TEXT PRIMARY KEY,
             name_en TEXT,
             name_fr TEXT
         );",
@@ -25,7 +25,7 @@ pub(crate) fn create_tables(
     )?;
     conn.execute(
         "CREATE TABLE positions (
-            id TEXT primary key,
+            id TEXT PRIMARY KEY,
             lat TEXT,
             lon TEXT,
             FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -44,8 +44,8 @@ pub(crate) fn create_tables(
     conn.execute("CREATE INDEX natures_id_nat ON natures(id, nat);", ())?;
     conn.execute(
         "CREATE TABLE edges (
-            a TEXT not null,
-            b TEXT not null,
+            a TEXT NOT NULL,
+            b TEXT NOT NULL,
             UNIQUE(a, b)
         );",
         (),
@@ -54,8 +54,8 @@ pub(crate) fn create_tables(
     conn.execute("CREATE INDEX edges_b ON edges(b);", ())?;
     conn.execute(
         "CREATE TABLE subclass (
-            id TEXT not null,
-            parent TEXT not null,
+            id TEXT NOT NULL,
+            parent TEXT NOT NULL,
             UNIQUE(id, parent)
         );
         ",
