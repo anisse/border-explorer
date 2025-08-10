@@ -133,7 +133,8 @@ impl<'conn> Statements<'conn> {
                 all_children_id(id, nat) AS (SELECT DISTINCT id, nat FROM natures WHERE nat IN all_children)
                 SELECT DISTINCT e.name_en, e.name_fr, p.lon, p.lat
                     FROM entities AS e, all_children_id AS aci, positions AS p
-                    WHERE aci.id = e.id AND p.id = e.id;")
+                    WHERE aci.id = e.id AND p.id = e.id
+                    ORDER BY aci.id;")
                 .expect("Failed to prepare select category"),
             select_edges_category: conn
                 .prepare("
@@ -144,7 +145,8 @@ impl<'conn> Statements<'conn> {
                 SELECT DISTINCT a.lon, a.lat, b.lon, b.lat
                     FROM edges AS edj, positions AS a, all_children_id AS aci, positions AS b
                     WHERE edj.a = aci.id AND aci.nat IN (SELECT nat FROM all_children_id WHERE id = edj.b)
-                        AND edj.a = a.id AND edj.b = b.id;")
+                        AND edj.a = a.id AND edj.b = b.id
+                    ORDER BY aci.id;")
                 .expect("Failed to prepare select category"),
             top_categories_by_edges: conn
                 .prepare("

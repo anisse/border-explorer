@@ -26,6 +26,7 @@ Crates:
  - memchr: for fast filtering before json parsing
  - serde and serde_json: for JSON parsing and geojson file generation
  - reqwest: for fetching category names from Wikidata (< 200 HTTP requests in a run)
+ - indexmap: for stable output generation
 
 # Running, building, etc.
 

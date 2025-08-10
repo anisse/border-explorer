@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 chrono = { version = "0.4.41", default-features = false, features = ["std"] }
+indexmap = { version = "2.10.0", features = ["serde", "std"] }
 memchr = "2.7.5"
 reqwest = { version = "0.11.20", default-features = false, features = ["rustls-tls-native-roots", "blocking", "cookies", "gzip", "brotli", "json"] }
 rusqlite = { version = "0.36.0", default-features = false, features = ["bundled"] }

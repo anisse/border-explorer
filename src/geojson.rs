@@ -7,6 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fs::File;
 
+use indexmap::IndexMap;
 use serde::ser::{self, SerializeSeq};
 use serde::{Serialize, Serializer};
 
@@ -17,7 +18,7 @@ pub(crate) fn generate(
     // Get top N categories, and fetch their name
     let top = &mut statements.top_categories_by_edges;
     let rows = top.query_map([], |row| row.get(0))?;
-    let mut categories = HashMap::new();
+    let mut categories = IndexMap::new();
     for x in rows {
         let id_int: u64 = x?;
         let id: String = format!("Q{id_int}");
