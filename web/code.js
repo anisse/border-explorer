@@ -12,7 +12,11 @@ if (window.location.hash) {
 	});
 }
 function getUrl() {
-	return window.location.protocol + "//" + window.location.host+ window.location.pathname + "#zoom=" + map.getZoom() + "&center=" + map.getCenter().lng + "," + map.getCenter().lat + "&category=" + document.getElementById("category").value
+	return window.location.protocol + "//" + window.location.host+
+		window.location.pathname + "#zoom=" + map.getZoom() +
+		"&center=" + map.getCenter().lng + "," + map.getCenter().lat +
+		"&category=" + document.getElementById("category").value +
+		"&filter=" + document.getElementById("filter-input").value
 }
 const map = new maplibregl.Map({
 	container: 'map',
