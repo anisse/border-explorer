@@ -21,7 +21,7 @@ function getUrl() {
 const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
-	attributionControl: {customAttribution: "<a href='https://anisse.astier.eu/wikidata-communes-viewer.html' target='_blank'>Anisse Astier</a>", compact: true},
+	attributionControl: {customAttribution: "<a href='https://github.com/anisse/border-explorer' target='_blank'>Border Explorer by Anisse Astier</a>", compact: true},
 	center: params.center || [15,15],
 	zoom: params["zoom"] || 1.6
 });
