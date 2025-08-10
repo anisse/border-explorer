@@ -1,4 +1,5 @@
 use crate::db::Statements;
+use crate::int_id;
 
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -18,13 +19,14 @@ pub(crate) fn generate(
     let rows = top.query_map([], |row| row.get(0))?;
     let mut categories = HashMap::new();
     for x in rows {
-        let id: u64 = x?;
-        if !banned_generic_categories.contains(&id) {
+        let id_int: u64 = x?;
+        let id: String = format!("Q{id_int}");
+        if !banned_generic_categories.contains(&id_int) {
             // Make sure we have the description of this category.
             let labels = fetch_missing_entity_name(
                 &mut statements.select_entity,
                 &mut statements.insert_entity,
-                id,
+                id_int,
             )?;
             categories.insert(id, labels);
         }
@@ -37,12 +39,13 @@ pub(crate) fn generate(
     let select_nodes = &mut statements.select_entities_category;
     let select_links = &mut statements.select_edges_category;
     for id in categories.keys() {
+        let id_int = int_id(id);
         let nodes = File::create_new(format!("web/geojson/{id}-nodes.geojson"))?;
-        let entities = select_nodes.query((id,))?;
+        let entities = select_nodes.query((id_int,))?;
         let geo = GeoJsonRootNodes::new(RefCell::new(entities));
         serde_json::to_writer(nodes, &geo)?;
         let links = File::create_new(format!("web/geojson/{id}-links.geojson"))?;
-        let edges = select_links.query((id,))?;
+        let edges = select_links.query((id_int,))?;
         let geo = GeoJsonRootEdges::new(edges);
         serde_json::to_writer(links, &geo)?;
     }
