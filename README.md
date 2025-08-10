@@ -4,14 +4,14 @@ Browse places that are connected by a border, connected as a graph.
 
 This project contains a pipeline to extract from Wikidata all the elements that share a border, and then organize them by categories to present them in a convenient view:
 
-[Go to border explorer](https://anisse.github.io/border-explorer)
+## [Go to border explorer](https://anisse.github.io/border-explorer)
 
 
 # Tech details
 
-The [first version was viewing only French communes](https://anisse.astier.eu/wikidata-communes-viewer.html); I [rewrote the data pipeline in Rust](https://github.com/ansuz/RIIR) and made it generic to support any Wikidata category. On the website are the categories in the top 200, by number of edges; minus some categories that are too broad or generic.
+The [first version was viewing only French communes](https://anisse.astier.eu/wikidata-communes-viewer.html); I [rewrote the data pipeline in Rust](https://github.com/ansuz/RIIR) and made it generic to support any Wikidata category. On the website are the top categories, by number of edges and connectivity ratio; minus some categories that are too broad or generic.
 
-Instead of learning SPARQL, I decided to do a first pass to put the data in an sqlite database; then a second pass generates geojson files to be viewed from SQL queries.
+Instead of installing Blazegraph and learning SPARQL, I decided to do a first pass to put the data in an sqlite database; then a second pass generates geojson files to be viewed from SQL queries.
 
 # Dependencies
 
@@ -27,6 +27,12 @@ Crates:
  - serde and serde_json: for JSON parsing and geojson file generation
  - reqwest: for fetching category names from Wikidata (< 200 HTTP requests in a run)
  - indexmap: for stable output generation
+
+Frontend:
+
+ - Maplibre GL JS - for displaying the data on a WebGL-accelerated map widget (fork of Mapbox GL JS)
+ - Noto font, converted as PBF for OpenMapTiles (from Maplibre demo tiles).
+ - [Earth coastlines extract](https://github.com/simonepri/geo-maps/blob/master/info/earth-coastlines.md) from OpenStreetMap, converted to geojson.
 
 # Running, building, etc.
 
