@@ -156,7 +156,7 @@ impl<'conn> Statements<'conn> {
                         JOIN all_parents ON all_parents.nat = sub.id WHERE sub.parent NOT IN banned_natures)
                 SELECT ap.nat, COUNT(edj.rowid) AS c FROM edges as edj, all_parents as ap
                     WHERE edj.a = ap.id AND ap.nat IN (SELECT nat FROM all_parents WHERE id = edj.b)
-                    GROUP BY ap.nat ORDER BY c DESC LIMIT 600;")
+                    GROUP BY ap.nat HAVING c >= 28 AND 10 * c / COUNT(distinct ap.id) >= 18 ORDER BY c DESC LIMIT 600;")
                 .expect("Failed to prepare top categories"),
         }
     }
