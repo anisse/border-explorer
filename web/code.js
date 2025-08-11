@@ -125,8 +125,9 @@ async function process() {
 				"interpolate", ["linear"], ["zoom"],
 				// zoom is 5 (or less) -> circle radius will be 1px
 				5, 1,
-				// zoom is 10 (or greater) -> circle radius will be 5px
-				10, 5
+				10, 6,
+				// zoom is 15 (or greater) -> circle radius will be 9px
+				15, 9
 			]
 		}
 	});
