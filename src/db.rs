@@ -41,6 +41,7 @@ pub(crate) fn create_tables(
         ",
         (),
     )?;
+    conn.execute("CREATE INDEX natures_nat ON natures(nat);", ())?;
     conn.execute("CREATE INDEX natures_id_nat ON natures(id, nat);", ())?;
     conn.execute(
         "CREATE TABLE edges (
@@ -129,24 +130,22 @@ impl<'conn> Statements<'conn> {
                 .prepare("
                 WITH all_children(nat) AS (
                     VALUES(?1)
-                    UNION SELECT sub.id FROM subclass AS sub JOIN all_children ON all_children.nat = sub.parent),
-                all_children_id(id, nat) AS (SELECT DISTINCT id, nat FROM natures WHERE nat IN all_children)
+                    UNION SELECT sub.id FROM subclass AS sub JOIN all_children ON all_children.nat = sub.parent)
                 SELECT DISTINCT e.name_en, e.name_fr, p.lon, p.lat
-                    FROM entities AS e, all_children_id AS aci, positions AS p
-                    WHERE aci.id = e.id AND p.id = e.id
-                    ORDER BY aci.id;")
+                    FROM entities AS e, positions AS p, natures as nat
+                    WHERE p.id = e.id AND nat.id = e.id AND nat.nat IN all_children
+                    ORDER BY e.id;")
                 .expect("Failed to prepare select category"),
             select_edges_category: conn
                 .prepare("
                 WITH all_children(nat) AS (
                     VALUES(?1)
-                    UNION SELECT sub.id FROM subclass AS sub JOIN all_children ON all_children.nat = sub.parent),
-                all_children_id(id, nat) AS (SELECT DISTINCT id, nat FROM natures WHERE nat IN all_children)
+                    UNION SELECT sub.id FROM subclass AS sub JOIN all_children ON all_children.nat = sub.parent)
                 SELECT DISTINCT a.lon, a.lat, b.lon, b.lat
-                    FROM edges AS edj, positions AS a, all_children_id AS aci, positions AS b
-                    WHERE edj.a = aci.id AND aci.nat IN (SELECT nat FROM all_children_id WHERE id = edj.b)
+                    FROM edges AS edj, positions AS a, positions AS b, natures as anat, natures as bnat
+                    WHERE edj.a = anat.id AND anat.nat in all_children AND bnat.id = edj.b AND bnat.nat IN all_children
                         AND edj.a = a.id AND edj.b = b.id
-                    ORDER BY aci.id;")
+                    ORDER BY edj.a;")
                 .expect("Failed to prepare select category"),
             top_categories_by_edges: conn
                 .prepare("
