@@ -30,6 +30,9 @@ function getUrl() {
 		url += "&filter=" + filter;
 	return url;
 }
+function setUrl() {
+	window.location.replace(getUrl());
+}
 const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
@@ -187,6 +190,7 @@ async function process() {
 		}
 		map.getSource('places').getBounds().then(bounds => map.fitBounds(bounds));
 	});
+	map.on("idle", setUrl);
 }
 async function initSelection() {
 	const select = document.getElementById("category");
