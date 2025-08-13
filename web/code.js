@@ -219,7 +219,7 @@ async function onSelect() {
 		map.getSource("places_links").setData("geojson/" + id + "-links.geojson");
 		map.getSource("places").setData("geojson/" + id + "-nodes.geojson");
 	});
-	select.selectedIndex = -1;
+	select.selectedIndex = 0;
 	if (params.category in index) {
 		select.value = params.category;
 		select.dispatchEvent(new Event("change"));
