@@ -17,11 +17,18 @@ if (window.location.hash) {
 	}
 }
 function getUrl() {
-	return window.location.protocol + "//" + window.location.host+
-		window.location.pathname + "#zoom=" + map.getZoom() +
-		"&center=" + map.getCenter().lng + "," + map.getCenter().lat +
-		"&category=" + document.getElementById("category").value +
-		"&filter=" + document.getElementById("filter-input").value
+	// Limit to 5 decimal digits to simplify URLs (precision: 1.11m)
+	const formatNum = (num) => num.toPrecision(5).replace(/0*$/, '');
+	var url = window.location.protocol + "//" + window.location.host+
+		window.location.pathname + "#zoom=" + formatNum(map.getZoom()) +
+		"&center=" + formatNum(map.getCenter().lng) + "," + formatNum(map.getCenter().lat);
+	const category = document.getElementById("category").value;
+	if (category)
+		url += "&category=" + category;
+	const filter = document.getElementById("filter-input").value;
+	if (filter)
+		url += "&filter=" + filter;
+	return url;
 }
 const map = new maplibregl.Map({
 	container: 'map',
