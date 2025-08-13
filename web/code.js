@@ -1,5 +1,6 @@
 
 const params = {};
+var blockNextFit;
 if (window.location.hash) {
 	window.location.hash.substring(1).split('&').forEach(item => {
 		const key = item.split('=')[0];
@@ -10,6 +11,10 @@ if (window.location.hash) {
 			val = val.split(',').map(item => parseFloat(item));
 		params[key] = val;
 	});
+	if (params.category && (params.zoom != undefined || params.center != undefined)) {
+		/* Prevent automatic loading of the category to go to different coordinates */
+		blockNextFit = true;
+	}
 }
 function getUrl() {
 	return window.location.protocol + "//" + window.location.host+
@@ -166,6 +171,15 @@ async function process() {
 		updateFilter(e.target.value);
 	});
 	updateFilter(params.filter);
+	map.on("sourcedata", (e) => {
+		if (e.sourceId != 'places' || !e.isSourceLoaded || e.sourceDataType != "metadata")
+			return;
+		if (blockNextFit) {
+			blockNextFit = false
+			return;
+		}
+		map.getSource('places').getBounds().then(bounds => map.fitBounds(bounds));
+	});
 }
 async function initSelection() {
 	const select = document.getElementById("category");
