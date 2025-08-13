@@ -1,5 +1,6 @@
 
 const params = {};
+var blockNextFit;
 if (window.location.hash) {
 	window.location.hash.substring(1).split('&').forEach(item => {
 		const key = item.split('=')[0];
@@ -10,20 +11,34 @@ if (window.location.hash) {
 			val = val.split(',').map(item => parseFloat(item));
 		params[key] = val;
 	});
+	if (params.category && (params.zoom != undefined || params.center != undefined)) {
+		/* Prevent automatic loading of the category to go to different coordinates */
+		blockNextFit = true;
+	}
 }
 function getUrl() {
-	return window.location.protocol + "//" + window.location.host+
-		window.location.pathname + "#zoom=" + map.getZoom() +
-		"&center=" + map.getCenter().lng + "," + map.getCenter().lat +
-		"&category=" + document.getElementById("category").value +
-		"&filter=" + document.getElementById("filter-input").value
+	// Limit to 5 decimal digits to simplify URLs (precision: 1.11m)
+	const formatNum = (num) => num.toPrecision(5).replace(/0*$/, '');
+	var url = window.location.protocol + "//" + window.location.host+
+		window.location.pathname + "#zoom=" + formatNum(map.getZoom()) +
+		"&center=" + formatNum(map.getCenter().lng) + "," + formatNum(map.getCenter().lat);
+	const category = document.getElementById("category").value;
+	if (category)
+		url += "&category=" + category;
+	const filter = document.getElementById("filter-input").value;
+	if (filter)
+		url += "&filter=" + filter;
+	return url;
+}
+function setUrl() {
+	window.location.replace(getUrl());
 }
 const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
 	attributionControl: {customAttribution: "<a href='https://github.com/anisse/border-explorer' target='_blank'>Border Explorer by Anisse Astier</a>", compact: true},
-	center: params.center || [15,15],
-	zoom: params["zoom"] || 1.6
+	center: params.center || [0,0],
+	zoom: params["zoom"] || 1.5
 });
 map.addControl(new maplibregl.NavigationControl({
 	visualizePitch: false,
@@ -125,8 +140,9 @@ async function process() {
 				"interpolate", ["linear"], ["zoom"],
 				// zoom is 5 (or less) -> circle radius will be 1px
 				5, 1,
-				// zoom is 10 (or greater) -> circle radius will be 5px
-				10, 5
+				10, 6,
+				// zoom is 15 (or greater) -> circle radius will be 9px
+				15, 9
 			]
 		}
 	});
@@ -165,6 +181,16 @@ async function process() {
 		updateFilter(e.target.value);
 	});
 	updateFilter(params.filter);
+	map.on("sourcedata", (e) => {
+		if (e.sourceId != 'places' || !e.isSourceLoaded || e.sourceDataType != "metadata")
+			return;
+		if (blockNextFit) {
+			blockNextFit = false
+			return;
+		}
+		map.getSource('places').getBounds().then(bounds => map.fitBounds(bounds));
+	});
+	map.on("idle", setUrl);
 }
 async function initSelection() {
 	const select = document.getElementById("category");
@@ -177,6 +203,12 @@ async function initSelection() {
 			option.value = key;
 			select.add(option);
 		})
+	const random = document.getElementById("randomBtn");
+	random.addEventListener("click", (event) => {
+		let num = Math.floor(Math.random() * (select.options.length -1));
+		select.selectedIndex = num + 1; // skip element 0
+		select.dispatchEvent(new Event("change"));
+	});
 }
 function getLanguage() {
 	const langList = navigator.languages || ["en"];
@@ -193,7 +225,7 @@ async function onSelect() {
 		map.getSource("places_links").setData("geojson/" + id + "-links.geojson");
 		map.getSource("places").setData("geojson/" + id + "-nodes.geojson");
 	});
-	select.selectedIndex = -1;
+	select.selectedIndex = 0;
 	if (params.category in index) {
 		select.value = params.category;
 		select.dispatchEvent(new Event("change"));

@@ -9,47 +9,77 @@
     <style>
         body { margin: 0; padding: 0; }
         html, body, #map { height: 100%; }
-        .filter-ctrl {
+        .box {
             position: absolute;
             top: 10px;
-            right: 10px;
             z-index: 1;
-        }
-
-        .filter-ctrl input[type='text'] {
-            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-            width: 100%;
             border: 0;
             background-color: #fff;
             margin: 0;
             color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
             box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
             border-radius: 3px;
-            width: 180px;
+            font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            height: 40px;
+            box-sizing: border-box;
+        }
+
+        .filter-ctrl {
+            top: 10px;
+            right: 10px;
+            width: min(30%, 200px);
+        }
+
+        .filter-ctrl input[type='text'] {
+            font: inherit;
+            color: inherit;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            /*width: min(80%, 140px);*/
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-color: transparent;
+            border-radius: 3px;
+            box-shadow: none;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .select {
-            font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
             position: absolute;
             top: 10px;
             left: 10px;
             padding: 7.75px;
+            width: min(30%, 500px);
+        }
+        #category {
+            font: inherit;
+            width: 100%;
             margin: 0;
-            z-index: 1;
-            background-color: #fff;
-            border-radius: 3px;
-            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            height:25px;
+        }
+        .random {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            padding: 7.75px;
+        }
+        .random button {
+            font: inherit;
+            height:25px;
         }
     </style>
   </head>
   <body>
-    <p class="select">
-      Select your category:
-      <select id="category"></select>
+    <p class="select box">
+      <select id="category">
+          <option disabled selected value>Select a category</option>
+      </select>
     </p>
     <div id="map"></div>
-    <div class="filter-ctrl">
+    <div class="filter-ctrl box">
         <input
             id="filter-input"
             type="text"
@@ -57,6 +87,7 @@
             placeholder="Filter by name"
         />
     </div>
+    <div class="random box"><button id="randomBtn">Random!</button></div>
     <script src="code.js"></script>
   </body>
 </html>
