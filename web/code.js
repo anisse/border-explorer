@@ -203,6 +203,12 @@ async function initSelection() {
 			option.value = key;
 			select.add(option);
 		})
+	const random = document.getElementById("randomBtn");
+	random.addEventListener("click", (event) => {
+		let num = Math.floor(Math.random() * (select.options.length -1));
+		select.selectedIndex = num + 1; // skip element 0
+		select.dispatchEvent(new Event("change"));
+	});
 }
 function getLanguage() {
 	const langList = navigator.languages || ["en"];
