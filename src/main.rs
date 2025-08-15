@@ -10,6 +10,7 @@ use std::process;
 
 use chrono::DateTime;
 use db::int_id;
+use db::int_id_faillible;
 use memchr::memmem;
 use serde::Deserialize;
 
@@ -293,7 +294,7 @@ fn claim_before<Tz: chrono::TimeZone>(p582_qualifiers: &[Snak], cutoff: DateTime
 
 pub(crate) fn claim_and_roles(claim: &Claim) -> impl Iterator<Item = u64> {
     let main = if let Snak::Item { value } = &claim.mainsnak {
-        int_id(value.id)
+        int_id_faillible(value.id).expect("Invalid nature id")
     } else {
         panic!("No nature id")
     };
@@ -306,7 +307,13 @@ pub(crate) fn claim_and_roles(claim: &Claim) -> impl Iterator<Item = u64> {
                 .flat_map(|roles| roles.iter())
                 .filter_map(|role| {
                     if let Snak::Item { value } = role {
-                        Some(int_id(value.id))
+                        match int_id_faillible(value.id) {
+                            Ok(a) => Some(a),
+                            Err(e) => {
+                                println!("Warning: invalid role claim: {e}");
+                                None
+                            }
+                        }
                     } else {
                         None
                     }

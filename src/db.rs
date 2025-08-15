@@ -164,8 +164,9 @@ pub(crate) fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
     let label_en = label(&item.labels, "en").unwrap_or_else(|| label_or_empty(&item.labels, "mul"));
     let label_fr = label_or_empty(&item.labels, "fr");
 
+    let id = int_id_faillible(item.id).expect("Incorrect item id");
     st.insert_entity
-        .execute((int_id(item.id), label_en, label_fr))
+        .execute((id, label_en, label_fr))
         .expect("Failed base insert");
 }
 pub(crate) fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
@@ -207,21 +208,28 @@ pub(crate) fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
         .filter_map(|pos| {
             //dbg!(&pos.mainsnak);
             if let Snak::Item { ref value } = pos.mainsnak {
-                Some(int_id(value.id))
+                match int_id_faillible(value.id) {
+                    Ok(a) => Some(a),
+                    Err(e) => {
+                        println!("Warning: invalid shares border with: {e}");
+                        None
+                    }
+                }
             } else {
                 None // Ignore elements explicitly without any item to share border with, like Q71356
             }
         });
+    let id = int_id_faillible(item.id).expect("Incorrect item id");
     st.insert_position
-        .execute((int_id(item.id), position.latitude, position.longitude))
+        .execute((id, position.latitude, position.longitude))
         .expect("Failed insert");
     natures.for_each(|nat| {
         st.insert_nature
-            .execute((int_id(item.id), nat))
+            .execute((id, nat))
             .expect("Failed nature insert");
     });
     connections.for_each(|edge| {
-        let mut items = [int_id(item.id), edge];
+        let mut items = [id, edge];
         items.sort();
         st.insert_edge
             .execute((items[0], items[1]))
@@ -246,9 +254,24 @@ pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
         .filter(|claim| claim_still_valid(claim))
         .filter_map(|pos| {
             if let Snak::Item { ref value } = pos.mainsnak {
-                Some((int_id(item.id), int_id(value.id)))
+                Some((item.id, value.id))
             } else {
                 None // Ignore elements without subclass id
+            }
+        })
+        .filter_map(|(id, parent)| {
+            let id = int_id_faillible(id);
+            let parent = int_id_faillible(parent);
+            match (id, parent) {
+                (Ok(id), Ok(parent)) => Some((id, parent)),
+                (_, Err(e)) => {
+                    println!("Warning: invalid parent id {e}");
+                    None
+                }
+                (Err(e), _) => {
+                    println!("Warning: invalid subclass id {e}");
+                    None
+                }
             }
         })
         .for_each(|(id, parent_id)| {
@@ -258,12 +281,15 @@ pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
         });
 }
 
-pub(crate) fn int_id(id: &str) -> u64 {
+pub(crate) fn int_id_faillible(id: &str) -> Result<u64, String> {
     if id.bytes().next() != Some(b'Q') {
-        panic!("Not a Q-entity: {id}");
+        return Err("not a Q-entity: {id}".to_string());
     }
     let integer_part = &id[1..];
     integer_part
         .parse()
-        .unwrap_or_else(|e| panic!("Not an int '{integer_part}': {e}"))
+        .map_err(|e| format!("not an int '{integer_part}': {e}"))
+}
+pub(crate) fn int_id(id: &str) -> u64 {
+    int_id_faillible(id).unwrap()
 }
