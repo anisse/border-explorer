@@ -63,6 +63,7 @@ struct Config {
     intermediate_db_filename: String,
 
     banned_generic_categories: HashSet<u64>,
+    banned_parents: HashSet<u64>,
 }
 pub(crate) const NATURE_CLAIM: &str = "P31";
 pub(crate) const POSITION_CLAIM: &str = "P625";
@@ -84,6 +85,8 @@ impl Default for Config {
             banned_generic_categories: parse_banned_categories(include_str!(
                 "../banned-categories.tsv"
             )),
+            /* Hardcoded filter list for top parents reponsible for 30% of the table */
+            banned_parents: HashSet::from([11173, 20747295, 8054, 7187, 277338]),
         }
     }
 }
@@ -130,7 +133,7 @@ fn fill_db_from_dump(
                     db::insert(statements, &el);
                 } else if el.claims.contains_key(SUBCLASS_OF_CLAIM) {
                     db::insert_base(statements, &el);
-                    db::insert_subclass(statements, &el);
+                    db::insert_subclass(statements, &el, &config.banned_parents);
                 }
             });
     }

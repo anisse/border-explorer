@@ -244,7 +244,11 @@ fn label_or_empty<'a>(labels: &Labels<'a>, lang: &str) -> String {
     label(labels, lang).unwrap_or_default()
 }
 
-pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
+pub(crate) fn insert_subclass<'a>(
+    st: &mut Statements,
+    item: &Element<'a>,
+    banned_parents: &HashSet<u64>,
+) {
     item.claims
         .get(SUBCLASS_OF_CLAIM)
         .unwrap_or_else(|| {
@@ -274,6 +278,7 @@ pub(crate) fn insert_subclass<'a>(st: &mut Statements, item: &Element<'a>) {
                 }
             }
         })
+        .filter(|(_, parent)| !banned_parents.contains(parent))
         .for_each(|(id, parent_id)| {
             st.insert_subclass
                 .execute((id, parent_id))
