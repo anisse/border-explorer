@@ -160,14 +160,18 @@ impl<'conn> Statements<'conn> {
         }
     }
 }
-pub(crate) fn insert_base<'a>(st: &mut Statements, item: &Element<'a>) {
+pub(crate) fn insert_base<'a>(
+    st: &mut Statements,
+    item: &Element<'a>,
+) -> Result<(), Box<dyn Error>> {
     let label_en = label(&item.labels, "en").unwrap_or_else(|| label_or_empty(&item.labels, "mul"));
     let label_fr = label_or_empty(&item.labels, "fr");
 
-    let id = int_id_faillible(item.id).expect("Incorrect item id");
+    let id = int_id_faillible(item.id)?;
     st.insert_entity
         .execute((id, label_en, label_fr))
         .expect("Failed base insert");
+    Ok(())
 }
 pub(crate) fn insert<'a>(st: &mut Statements, item: &Element<'a>) {
     let natures = item
@@ -288,7 +292,7 @@ pub(crate) fn insert_subclass<'a>(
 
 pub(crate) fn int_id_faillible(id: &str) -> Result<u64, String> {
     if id.bytes().next() != Some(b'Q') {
-        return Err("not a Q-entity: {id}".to_string());
+        return Err(format!("not a Q-entity: {id}"));
     }
     let integer_part = &id[1..];
     integer_part

@@ -125,15 +125,21 @@ fn fill_db_from_dump(
                     .all(|claim| grep(line, claim))
                     || grep(line, SUBCLASS_OF_CLAIM)
             })
-            .for_each(|(_i, l)| {
+            .for_each(|(i, l)| {
                 let el = parse(&l);
-                if query(&el, config) {
-                    //println!("{_i}: {}", _format(&el));
-                    db::insert_base(statements, &el);
-                    db::insert(statements, &el);
-                } else if el.claims.contains_key(SUBCLASS_OF_CLAIM) {
-                    db::insert_base(statements, &el);
-                    db::insert_subclass(statements, &el, &config.banned_parents);
+                let res: Result<(), Box<dyn Error>> = (|| {
+                    if query(&el, config) {
+                        //println!("{_i}: {}", _format(&el));
+                        db::insert_base(statements, &el)?;
+                        db::insert(statements, &el);
+                    } else if el.claims.contains_key(SUBCLASS_OF_CLAIM) {
+                        db::insert_base(statements, &el)?;
+                        db::insert_subclass(statements, &el, &config.banned_parents);
+                    }
+                    Ok(())
+                })();
+                if let Err(e) = res {
+                    println!("Error at line {i} (id {}): {e}\n{l}", el.id);
                 }
             });
     }
