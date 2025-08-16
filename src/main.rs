@@ -110,7 +110,7 @@ fn fill_db_from_dump(
             .ok_or("missing dump file name")?,
     )?;
     if let Some(ref mut stdout) = cat.stdout {
-        BufReader::new(stdout)
+        BufReader::with_capacity(64 * 1024, stdout)
             .lines()
             .map_while(Result::ok)
             .enumerate()
