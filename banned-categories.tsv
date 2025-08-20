@@ -198,7 +198,7 @@ Q15642566	non-political administrative territorial entity	country subdivision th
 #Q5616099	census division	official census terminology used in the United States and Canada
 #Q1053463	census geographic unit of Canada	term used in Canada
 #Q3183364	administrative territorial entity of Spain	subclass of administrative territorial entities
-#Q17457753	census subdivision	an area in Canada designated for census purposes
+Q17457753	census subdivision	an area in Canada designated for census purposes
 #Q2824645	administrative territorial entity of Italy	
 Q48909258	third-order administrative division	statistical classification in GeoNames
 #Q747074	commune of Italy	municipal divisions of Italy
@@ -998,3 +998,4 @@ Q1107656	garden	planned space set aside for the display, cultivation, and enjoym
 #Q200547	county of Sweden	administrative subdivisions of Sweden
 #Q56059	department of Uruguay	administrative territorial entity of Uruguay
 #Q8561193	district of Valencia	administrative unit of Valencia, Spain
+Q788176	autonomous administrative territorial entity	region with some freedom from its central government
