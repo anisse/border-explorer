@@ -22,6 +22,9 @@ WORKDIR="$PWD"
 DUMP_FILE=wikidata-dump.bz2
 OLD_DUMP_FILE=wikidata-dump.old.bz2
 
+exec 42<>"$WORKDIR/lockfile"
+flock -n 42 || die "Script already running"
+
 if [ -f "$DUMP_FILE" ]; then
 	mv "$DUMP_FILE" "$OLD_DUMP_FILE"
 	trap cleanup EXIT
