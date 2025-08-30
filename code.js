@@ -36,7 +36,7 @@ function setUrl() {
 const map = new maplibregl.Map({
 	container: 'map',
 	style: {version: 8,sources: {},layers: [], glyphs: "{fontstack}/{range}.pbf" },
-	attributionControl: {customAttribution: "<a href='https://github.com/anisse/border-explorer' target='_blank'>Border Explorer by Anisse Astier - Wikidata 2025-08-22</a>", compact: true},
+	attributionControl: {customAttribution: "<a href='https://github.com/anisse/border-explorer' target='_blank'>Border Explorer by Anisse Astier - Wikidata 2025-08-27</a>", compact: true},
 	center: params.center || [0,0],
 	zoom: params["zoom"] || 1.5
 });
